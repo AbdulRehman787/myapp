@@ -1,118 +1,88 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
-
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+import { StyleSheet, Text, View } from 'react-native'
+import React from 'react'
+import { NavigationContainer } from '@react-navigation/native'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import Home from './component/Screen/Home';
+import HomeScreen from './component/Screen/HomeScreen';
+import HomeScreen1 from './component/Screen/HomeScreen1';
+import HomeScreen2 from './component/Screen/HomeScreen2';
+import HomeScreen3 from './component/Screen/HomeScreen3';
+import Login from './component/Auth/Login';
+import Signup from './component/Auth/Signup';
+import ForgotPassword from './component/Auth/ForgotPassword';
+import NewPassword from './component/Auth/NewPassword';
+import Verify from './component/KycVerify/Verify';
+import GetDocuments from './component/KycVerify/GetDocuments';
+import Dashborad from './component/Pages/Dashborad';
+import Lottery from './component/Lotteries/Lottery';
+import AllGames from './component/Games/AllGames';
+import ScratchLottery from './component/Lotteries/ScratchLottery';
+import Diece from './component/Games/Diece';
+import HeadandTail from './component/Games/HeadandTail';
+import RockPaper from './component/Games/RockPaper';
+import Spinner from './component/Games/Spinner';
+import NumberSlot from './component/Games/NumberSlot';
+import Setting from './component/Pages/Setting';
+import Profile from './component/Pages/Profile';
+import EditProfile from './component/Pages/EditProfile';
+import TopWinner from './component/Pages/TopWinner';
+import UpcomingLottery from './component/Pages/UpcomingLottery';
+import Transaction from './component/Pages/Transaction';
+import Privacy from './component/Pages/Privacy';
+import TermsCondition from './component/Pages/TermsCondition';
+import HelpSupport from './component/Pages/HelpSupport';
+import Signout from './component/Pages/Signout';
+import Notification from './component/Pages/Notification';
+import Referral from './component/Pages/Referral';
+import AllReferral from './component/Pages/AllReferral';
+const Stack = createNativeStackNavigator()
+const App = () => {
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
+    <>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName='AllGames'  screenOptions={{
+        headerShown: false,
+        gestureEnabled: true,
+        gestureDirection: 'horizontal',
+      }}>
+        <Stack.Screen name='Home' component={Home} />
+        <Stack.Screen name='HomeScreenone' component={HomeScreen1} />
+        <Stack.Screen name='HomeScreentwo' component={HomeScreen2} />
+        <Stack.Screen name='HomeScreenthree' component={HomeScreen3} />
+        <Stack.Screen name='Login' component={Login} />
+        <Stack.Screen name='Signup' component={Signup} />
+        <Stack.Screen name='ForgotPassword' component={ForgotPassword} />
+        <Stack.Screen name='NewPassword' component={NewPassword} />
+        <Stack.Screen name='Verify' component={Verify} />
+        <Stack.Screen name='GetDocuments' component={GetDocuments} />
+        <Stack.Screen name='Dashborad' component={Dashborad} />
+        <Stack.Screen name='Lottery' component={Lottery} />
+        <Stack.Screen name='AllGames' component={AllGames} />
+        <Stack.Screen name='ScratchLottery' component={ScratchLottery} />
+        <Stack.Screen name='Diece' component={Diece} />
+        <Stack.Screen name='HeadandTail' component={HeadandTail} />
+        <Stack.Screen name='RockPaper' component={RockPaper} />
+        <Stack.Screen name='Spinner' component={Spinner} />
+        <Stack.Screen name='NumberSlot' component={NumberSlot} /> 
+        <Stack.Screen name='Setting' component={Setting} /> 
+        <Stack.Screen name='My Profile' component={Profile} /> 
+        <Stack.Screen name='EditProfile' component={EditProfile} /> 
+        <Stack.Screen name='Top Winner' component={TopWinner} /> 
+        <Stack.Screen name='Upcoming Lottery' component={UpcomingLottery} /> 
+        <Stack.Screen name='Transactions' component={Transaction} />
+        <Stack.Screen name='Privacy & Policy' component={Privacy} />
+        <Stack.Screen name='Terms & Condition' component={TermsCondition} />
+        <Stack.Screen name='Help & Support' component={HelpSupport} />
+        <Stack.Screen name='Sign Out' component={Signout} />
+        <Stack.Screen name='Notification' component={Notification} />
+        <Stack.Screen name='Referral' component={Referral} />
+        <Stack.Screen name='AllReferral' component={AllReferral} />
+      </Stack.Navigator>
+    </NavigationContainer>
+    </>
+  )
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+export default App
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
-
-export default App;
+const styles = StyleSheet.create({})  
