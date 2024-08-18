@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput, Animated, Alert } from 'react-native';
 
 const HeadandTail = () => {
   const [selectedSide, setSelectedSide] = useState(null);
   const [bidAmount, setBidAmount] = useState('');
   const [animationValue] = useState(new Animated.Value(0)); // Animation value for flipping
   const [flippedSide, setFlippedSide] = useState(null);
+  const [result, setResult] = useState('');
 
   const selectHead = () => setSelectedSide('Head');
   const selectTail = () => setSelectedSide('Tail');
 
   const handleFlip = () => {
+    if (selectedSide === null) {
+      Alert.alert("Please select Head or Tail");
+      return;
+    }
     // Start the flipping animation
     Animated.timing(animationValue, {
       toValue: 1,
@@ -22,7 +27,17 @@ const HeadandTail = () => {
       // Simulate a random coin flip outcome
       const outcome = Math.random() < 0.5 ? 'Head' : 'Tail';
       setFlippedSide(outcome);
-      setSelectedSide(null); // Reset the selection
+      
+
+      // Check if the user won
+      if (selectedSide === outcome) {
+        setResult(`Congratulations! You selected ${selectedSide} and won the game.`);
+      } else {
+        setResult(`Sorry, you selected ${selectedSide}. The coin landed on ${outcome}. Better luck next time!`);
+      }
+
+      // Reset the selection
+      setSelectedSide(null);
     });
   };
 
@@ -78,8 +93,11 @@ const HeadandTail = () => {
         <Text style={styles.addButtonText}>Add Bet</Text>
       </TouchableOpacity>
 
-      <Text style={styles.noteText}>Minimum: 3 | Maximum: 1M | Win Amount: 100%</Text>
 
+      <Text style={styles.noteText}>Minimum: 3 | Maximum: 1M | Win Amount: 100%</Text>
+      <Text style={styles.noteText}>
+  {result}
+</Text>
       <View style={styles.navBar}>
         <Text style={styles.navText}>Home</Text>
         <Text style={styles.navText}>Lottery</Text>

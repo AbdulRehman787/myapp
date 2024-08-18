@@ -6,7 +6,7 @@ const Spinner = () => {
   const [spinValue] = useState(new Animated.Value(0));
   const [result, setResult] = useState('');
   const [userSelect, setUserSelect] = useState('');
-
+const [error,setError] = useState('')
   const prizes = ['Car', 'Bike', 'Phone', 'Laptop', 'Watch', 'Camera', 'House', 'Macbook'];
 
   const startSpin = () => {
@@ -28,9 +28,9 @@ const Spinner = () => {
 
       // Check if the user selection matches the result
       if (prizes[endValue] === userSelect) {
-        Alert.alert(`Congratulations! You won: ${userSelect}`);
+        setError(`Congratulations! You won: ${userSelect}`);
       } else {
-        Alert.alert(`Better luck next time! You selected: ${userSelect}, but the result was: ${prizes[endValue]}`);
+        setError(`Better luck next time! You selected: ${userSelect}, but the result was: ${prizes[endValue]}`);
       }
     });
   };
@@ -47,8 +47,6 @@ const Spinner = () => {
         <Image source={require('../../assets/images/spinner.png')} style={styles.spinnerImage} />
       </Animated.View>
 
-      
-
       <View style={styles.dropdownContainer}>
         <Text style={styles.dropdownLabel}>Select an Item:</Text>
         <SelectList
@@ -57,7 +55,8 @@ const Spinner = () => {
           save="value"
           dropdownTextStyles={styles.dropdownText}
           dropdownItemStyles={styles.dropdownItem}
-          dropdownItemSelectedStyles={styles.selectedItem} // Selected item styling dropdownTextStyles={styles.dropdownText}
+          dropdownItemSelectedStyles={styles.selectedItem}
+          boxStyles={styles.dropdownBox} // White container for the dropdown
         />
       </View>
 
@@ -65,7 +64,7 @@ const Spinner = () => {
         <Text style={styles.spinButtonText}>SPIN</Text>
       </TouchableOpacity>
 
-      {result ? <Text style={styles.resultText}>You won: {result}!</Text> : null}
+      {result ? <Text style={styles.resultText}>{error}!</Text> : null}
     </View>
   );
 };
@@ -119,14 +118,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   dropdownText: {
-    color: '#FFF',
+    color: '#021324', // Adjusted for visibility on a white background
   },
   dropdownItem: {
-    backgroundColor: '#021324',
+    backgroundColor: '#fff',
+    color: "#021324",
   },
   selectedItem: {
     backgroundColor: '#fff',  // Selected item color
     color: '#021324',  // Text color for the selected item
+  },
+  dropdownBox: {
+    backgroundColor: '#fff',  // White background for the dropdown container
+    borderRadius: 8,
   },
   resultText: {
     fontSize: 18,

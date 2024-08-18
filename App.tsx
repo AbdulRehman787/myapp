@@ -40,7 +40,7 @@ const App = () => {
   return (
     <>
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='AllGames'  screenOptions={{
+      <Stack.Navigator initialRouteName='Dashborad'  screenOptions={{
         headerShown: false,
         gestureEnabled: true,
         gestureDirection: 'horizontal',
