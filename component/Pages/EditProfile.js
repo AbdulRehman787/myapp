@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
 const EditProfile = () => {
   const [name, setName] = useState('')
@@ -8,7 +11,23 @@ const EditProfile = () => {
   const [phoneno, setPhoneNo] = useState('')
   const [country, setCountry] = useState('')
   const [city, setCity] = useState('')
+  const [imageUri, setImageUri] = useState(null);
 
+  const openImagePicker = () => {
+    launchImageLibrary({}, (response) => {
+      if (response.assets) {
+        setImageUri(response.assets[0].uri);
+      }
+    });
+  };
+
+  const openCamera = () => {
+    launchCamera({}, (response) => {
+      if (response.assets) {
+        setImageUri(response.assets[0].uri);
+      }
+    });
+  };
   const data = {
     name: name,
     email: email,
@@ -33,6 +52,13 @@ const EditProfile = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Edit Profile</Text>
+      <View style={styles.imgcont}>
+        <TouchableOpacity style={styles.imageget}onPress={openImagePicker}>
+        <Image source={require('../../assets/images/camera.png')} />
+        </TouchableOpacity>
+          <Text style={styles.imagbtntext}>Add Picture</Text>
+      </View>
+      {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />}
       <Text style={styles.head1}>Name</Text>
       <TextInput
         style={styles.input}
@@ -132,6 +158,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Poppins-Regular',
   },
+  imgcont:{
+    justifyContent:"center",
+    alignItems:'center',
+    textAlign:'center'
+  },
+  imageget:{
+    width: 70,
+    height:70,
+    borderRadius: 50,
+    justifyContent:"center",
+    alignItems:'center',
+    textAlign:'center',
+    borderColor: "#ffd700",
+    borderWidth: 1,
+    borderStyle:'solid'
+  },
+  imagbtntext:{
+    color:"#fff",
+    fontFamily:"Poppins-regular",
+    marginVertical: 10,
+  }
 });
 
 export default EditProfile;

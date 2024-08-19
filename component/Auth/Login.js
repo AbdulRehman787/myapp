@@ -34,7 +34,7 @@ const Login = () => {
         password
     };
 
-    axios.post('https://b56b-2a00-f29-2c8-c685-504f-d568-c93-1878.ngrok-free.app/login', data)
+    axios.post('https://mint-legible-coyote.ngrok-free.app/login', data)
         .then(res => {
             console.log(res.data);
             navigation.navigate('Dashborad')
@@ -223,7 +223,6 @@ const styles = StyleSheet.create({
   },
   error: {
     color: 'red',
-   
     marginBottom: 10,
     fontSize: 14,
     fontWeight: 'bold',

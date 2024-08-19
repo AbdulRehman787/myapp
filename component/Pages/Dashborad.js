@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity, SafeAreaView, ScrollView, Dimensions } from 'react-native'
-import React from 'react'
+import React, { useEffect,useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { useNavigation } from '@react-navigation/native'
-
+import AsyncStorage from '@react-native-async-storage/async-storage'
 const { width, height } = Dimensions.get('window');
 
 
@@ -52,18 +52,38 @@ const winnerdata=[
 ]
 const Dashboard = () => {
   const navigation = useNavigation();
-  
+  const [newData,setNewData]= useState('')
+
+  useEffect(() => {
+    getData();
+  }, []);
+  console.log(newData)
+
+  const getData = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem('UserData');
+      if (jsonValue != null) {
+        setNewData(JSON.parse(jsonValue));
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const userNameInitials = newData.name ? newData.name.slice(0, 2).toUpperCase() : '';
+
+
   return (
     <ScrollView>
       <View style={styles.container}>
         <View style={styles.cont1}>
-          <View style={styles.cont1img}>
-            <Text style={styles.cont1imgtext}>A.R</Text>
-          </View>
-          <View>
+          <TouchableOpacity style={styles.cont1img} onPress={()=> navigation.navigate('My Profile')}>
+          <Text style={styles.cont1imgtext} >{userNameInitials}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=> navigation.navigate('Notification')}>
             
             <Image source={require('../../assets/images/notification.jpg')} style={styles.notificationImg} />
-          </View>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.cont2}>
@@ -137,7 +157,7 @@ export default Dashboard
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 10,
+    paddingVertical: 20,
     paddingHorizontal: width * 0.05,
     backgroundColor: '#021324',
     flex: 1,

@@ -40,7 +40,7 @@ const App = () => {
   return (
     <>
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='Dashborad'  screenOptions={{
+      <Stack.Navigator initialRouteName='EditProfile'  screenOptions={{
         headerShown: false,
         gestureEnabled: true,
         gestureDirection: 'horizontal',
@@ -55,7 +55,7 @@ const App = () => {
         <Stack.Screen name='NewPassword' component={NewPassword} />
         <Stack.Screen name='Verify' component={Verify} />
         <Stack.Screen name='GetDocuments' component={GetDocuments} />
-        <Stack.Screen name='Dashborad' component={Dashborad} />
+        <Stack.Screen name='Dashboard' component={Dashborad} />
         <Stack.Screen name='Lottery' component={Lottery} />
         <Stack.Screen name='AllGames' component={AllGames} />
         <Stack.Screen name='ScratchLottery' component={ScratchLottery} />
