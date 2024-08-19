@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-
+import axios from 'axios';
 const EditProfile = () => {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -35,20 +35,44 @@ const EditProfile = () => {
     country: country,
     city: city
   }
-
-
-  const saveData = () => {
-    if (!name || !email || !phoneno || !country || !city) {
-      Alert.alert('All Input requires')
+  const saveData = async () => {
+    try {
+      if (!name || !email || !phoneno || !country || !city) {
+        Alert.alert('All Input requires');
+        return;
+      }
+  
+      const storedData = await AsyncStorage.getItem('UserData');
+      if (storedData) {
+        const storedUser = JSON.parse(storedData);
+  
+        // Check if the email matches
+        if (storedUser.email === email) {
+          // Update data on the backend
+          axios
+            .post('https://mint-legible-coyote.ngrok-free.app/update-profile', data)
+            .then(response => {
+              if (response.data.success) {
+                Alert.alert('Profile updated successfully');
+                // Optionally, update AsyncStorage with the new data
+                AsyncStorage.setItem('UserData', JSON.stringify(data));
+              } else {
+                Alert.alert('Failed to update profile');
+              }
+            })
+            .catch(err => {
+              console.error(err);
+              Alert.alert('An error occurred while updating profile');
+            });
+        } else {
+          Alert.alert('Email does not match');
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('An error occurred');
     }
-    else {
-      AsyncStorage.setItem('newData', JSON.stringify(data))
-        .then(res => console.log('data Add'))
-        .catch(err => console.log(err))
-    }
-  }
-
-
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Edit Profile</Text>
