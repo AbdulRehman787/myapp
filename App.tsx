@@ -35,12 +35,18 @@ import Signout from './component/Pages/Signout';
 import Notification from './component/Pages/Notification';
 import Referral from './component/Pages/Referral';
 import AllReferral from './component/Pages/AllReferral';
+import Deposit from './component/Wallet/Deposit'
+import Wallet from './component/Pages/Wallet';
+import DepositPage from './component/Wallet/DepositPage';
+import DepositOption from './component/Wallet/DepositOption';
+import PaymentOptions from './component/Wallet/PaymentsOption';
 const Stack = createNativeStackNavigator()
 const App = () => {
   return (
     <>
+    
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='EditProfile'  screenOptions={{
+      <Stack.Navigator initialRouteName='Deposit'  screenOptions={{
         headerShown: false,
         gestureEnabled: true,
         gestureDirection: 'horizontal',
@@ -77,6 +83,10 @@ const App = () => {
         <Stack.Screen name='Notification' component={Notification} />
         <Stack.Screen name='Referral' component={Referral} />
         <Stack.Screen name='AllReferral' component={AllReferral} />
+        <Stack.Screen name='Deposit' component={Deposit} />
+        <Stack.Screen name='DepositPage' component={DepositPage} />
+        <Stack.Screen name='DepositOptions' component={DepositOption} />
+        <Stack.Screen name='PaymentOptions' component={PaymentOptions} />
       </Stack.Navigator>
     </NavigationContainer>
     </>

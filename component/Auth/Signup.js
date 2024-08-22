@@ -38,7 +38,7 @@ const Signup = () => {
     } else {
       console.log(data);
       axios
-        .post('https://mint-legible-coyote.ngrok-free.app/signup', data)
+        .post('https://ec80-2a00-f29-2d0-c177-480b-774c-c21d-bf50.ngrok-free.app/signup', data)
         .then(res => {
           console.log(res.data);
           navigation.navigate('Dashboard');

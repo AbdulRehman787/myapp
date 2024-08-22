@@ -5,6 +5,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
+import PhoneInput from 'react-native-phone-number-input';
+
+
 const EditProfile = () => {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -12,6 +16,8 @@ const EditProfile = () => {
   const [country, setCountry] = useState('')
   const [city, setCity] = useState('')
   const [imageUri, setImageUri] = useState(null);
+  const [formattedPhoneNumber, setFormattedPhoneNumber] = useState('');
+  const navigation = useNavigation()
 
   const openImagePicker = () => {
     launchImageLibrary({}, (response) => {
@@ -54,8 +60,11 @@ const EditProfile = () => {
             .then(response => {
               if (response.data.success) {
                 Alert.alert('Profile updated successfully');
+                navigation.navigate('My Profile')
                 // Optionally, update AsyncStorage with the new data
                 AsyncStorage.setItem('UserData', JSON.stringify(data));
+              
+                
               } else {
                 Alert.alert('Failed to update profile');
               }
@@ -104,14 +113,20 @@ const EditProfile = () => {
       />
       <Text style={styles.head1}>Phone No</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Phone"
-        placeholderTextColor="#ccc"
-        keyboardType="phone-pad"
-        value={phoneno}
-        onChangeText={setPhoneNo}
-      />
+      <PhoneInput
+              defaultValue={phoneno}
+              defaultCode={'IN'}
+              onChangeFormattedText={text => setFormattedPhoneNumber(text)}
+              onChangeText={text => setPhoneno(text)}
+              withDarkTheme
+              withShadow
+              placeholder="Enter phone number"
+              containerStyle={style.phoneInputContainer}
+              textContainerStyle={style.phoneInputTextContainer}
+              textInputStyle={style.phoneInputText}
+              codeTextStyle={style.phoneInputCodeText}
+              flagButtonStyle={style.phoneInputFlag}
+            />
       <Text style={styles.head1}>Country Name</Text>
 
       <TextInput
@@ -202,7 +217,36 @@ const styles = StyleSheet.create({
     color:"#fff",
     fontFamily:"Poppins-regular",
     marginVertical: 10,
-  }
+  },phoneInputContainer: {
+    backgroundColor: '#cfcfcf',
+    marginVertical: 10,
+    padding: 15,
+    height: 55,
+    borderRadius: 25,
+    fontFamily: 'Poppins-Regular',
+    width: "100%",
+color:"#000"
+
+  },
+  phoneInputTextContainer: {
+    borderRadius: 25,
+    backgroundColor: '#cfcfcf',
+    paddingVertical: 0,
+    color: '#000',
+  },
+  phoneInputText: {
+    fontSize: 16,
+    color: "#000",
+    fontFamily: 'Poppins-Regular',
+  },
+  phoneInputCodeText: {
+    fontSize: 16,
+    fontFamily: 'Poppins-Regular',
+    color: '#000',
+  },
+  phoneInputFlag: {
+    marginLeft: 10,
+  },
 });
 
 export default EditProfile;

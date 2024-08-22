@@ -2,26 +2,19 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import axios from 'axios';
 const Profile = () => {
   const [profileData, setProfileData] = useState({});
+  const [data,setData] = useState('')
   const navigation = useNavigation();
+console.log(data[0].name)
 
-  useEffect(() => {
-    getData();
-  }, []);
-
-  const getData = async () => {
-    try {
-      const jsonValue = await AsyncStorage.getItem('newData');
-      if (jsonValue != null) {
-        setProfileData(JSON.parse(jsonValue));
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
+useEffect(()=>{
+  axios.get('https://mint-legible-coyote.ngrok-free.app/signup')
+  .then(res=> setData(res.data))
+  .catch(err=>console.log(err))
+},[])
+  
   return (
     <View style={styles.container}>
       <View>
@@ -37,31 +30,31 @@ const Profile = () => {
         <View style={styles.details}>
           <Text style={styles.accounthead}>Full Name</Text>
           <Text style={styles.accountdetails}>
-            {profileData.name || 'Jhon Die'}
+            {data[0].name || 'Jhon Die'}
           </Text>
         </View>
         <View style={styles.details}>
           <Text style={styles.accounthead}>Email Address</Text>
           <Text style={styles.accountdetails}>
-            {profileData.email || 'abc@gmail.com'}
+            {data[0].email || 'abc@gmail.com'}
           </Text>
         </View>
         <View style={styles.details}>
           <Text style={styles.accounthead}>PhoneNo</Text>
           <Text style={styles.accountdetails}>
-            {profileData.phoneno || '+0 123 456 789'}
+            {data[data].phoneno || '+0 123 456 789'}
           </Text>
         </View>
         <View style={styles.details}>
           <Text style={styles.accounthead}>Country</Text>
           <Text style={styles.accountdetails}>
-            {profileData.country || 'Add Country Name'}
+            {data[0].country || 'Add Country Name'}
           </Text>
         </View>
         <View style={styles.details}>
           <Text style={styles.accounthead}>City</Text>
           <Text style={styles.accountdetails}>
-            {profileData.city || 'Add City Name'}
+            {data[0].city || 'Add City Name'}
           </Text>
         </View>
       </View>
