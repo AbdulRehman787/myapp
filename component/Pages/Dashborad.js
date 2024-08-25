@@ -3,6 +3,9 @@ import React, { useEffect,useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { useNavigation } from '@react-navigation/native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useSelector, useDispatch } from 'react-redux'
+import axios from 'axios'
+
 const { width, height } = Dimensions.get('window');
 
 
@@ -54,10 +57,28 @@ const Dashboard = () => {
   const navigation = useNavigation();
   const [newData,setNewData]= useState('')
 
+  const dispatch = useDispatch();
+  const balance = useSelector((state) => state.balance.balance);
+  const transactions = useSelector((state) => state.transactions.transactions);
+
+  useEffect(() => {
+    // Fetch the balance and transactions from the backend (mocking it here)
+    const fetchData = async () => {
+      const balanceResponse = await axios.get('/api/balance');
+      const transactionsResponse = await axios.get('/api/transactions');
+      
+      dispatch({ type: 'SET_BALANCE', payload: balanceResponse.data.balance });
+      dispatch({ type: 'SET_TRANSACTIONS', payload: transactionsResponse.data.transactions });
+    };
+
+    fetchData();
+  }, [dispatch]);
+
+
   useEffect(() => {
     getData();
   }, []);
-  console.log(newData)
+ 
 
   const getData = async () => {
     try {
@@ -70,7 +91,7 @@ const Dashboard = () => {
     }
   };
 
-  const userNameInitials = newData.name ? newData.name.slice(0, 2).toUpperCase() : '';
+        const userNameInitials = newData.name ? newData.name.slice(0, 2).toUpperCase() : '';
 
 
   return (
@@ -89,10 +110,10 @@ const Dashboard = () => {
         <View style={styles.cont2}>
           <View>
             <Text style={styles.wallethead}>Wallet OverView</Text>
-            <Text style={styles.walletprice}>5000,00</Text>
+            <Text style={styles.walletprice}>${balance.toFixed(2)}</Text>
           </View>
           <View>
-            <TouchableOpacity style={styles.btn}><Text style={styles.btntext}>Deposit</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.btn} onPress={()=>navigation.navigate('Deposit')}><Text style={styles.btntext}>Deposit</Text></TouchableOpacity>
           </View>
         </View>
 
@@ -182,8 +203,8 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
   },
   notificationImg: {
-    width: width * 0.1,
-    height: width * 0.1,
+    width: 30,
+    height: 30,
   },
   cont2: {
     marginVertical: 10,

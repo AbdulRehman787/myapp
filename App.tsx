@@ -35,18 +35,28 @@ import Signout from './component/Pages/Signout';
 import Notification from './component/Pages/Notification';
 import Referral from './component/Pages/Referral';
 import AllReferral from './component/Pages/AllReferral';
-import Deposit from './component/Wallet/Deposit'
+import Deposit from './component/Wallet/Deposit';
 import Wallet from './component/Pages/Wallet';
 import DepositPage from './component/Wallet/DepositPage';
 import DepositOption from './component/Wallet/DepositOption';
 import PaymentOptions from './component/Wallet/PaymentsOption';
+import DemoAccount from './component/Wallet/DemoAccount';
+import RealAccount from './component/Wallet/RealAccount';
+import UsdtPayment from './component/Wallet/UsdtPayment';
+import UsdtTransfer from './component/Wallet/UsdtTransfer';
+import CardPayment from './component/Wallet/CardPayment';
+
+
+import { Provider } from 'react-redux';
+import store from './component/redux/store';
+import BottomTab from './component/Pages/BottomTab';
 const Stack = createNativeStackNavigator()
 const App = () => {
   return (
     <>
-    
+    <Provider store={store}>
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='Deposit'  screenOptions={{
+      <Stack.Navigator initialRouteName='Login'  screenOptions={{
         headerShown: false,
         gestureEnabled: true,
         gestureDirection: 'horizontal',
@@ -87,8 +97,17 @@ const App = () => {
         <Stack.Screen name='DepositPage' component={DepositPage} />
         <Stack.Screen name='DepositOptions' component={DepositOption} />
         <Stack.Screen name='PaymentOptions' component={PaymentOptions} />
+        <Stack.Screen name='HomeScreen' component={HomeScreen} />
+        <Stack.Screen name='DemoAccount' component={DemoAccount} />
+        <Stack.Screen name='RealAccount' component={RealAccount} />
+        <Stack.Screen name='UsdtPayment' component={UsdtPayment} />
+        <Stack.Screen name='UsdtTransfer' component={UsdtTransfer} />
+        <Stack.Screen name='Card Payment' component={CardPayment} />
+     
       </Stack.Navigator>
+      
     </NavigationContainer>
+    </Provider>
     </>
   )
 }

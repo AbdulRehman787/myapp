@@ -1,23 +1,72 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-const Profile = () => {
-  const [profileData, setProfileData] = useState({});
-  const [data,setData] = useState('')
-  const navigation = useNavigation();
-console.log(data[0].name)
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-useEffect(()=>{
-  axios.get('https://mint-legible-coyote.ngrok-free.app/signup')
-  .then(res=> setData(res.data))
-  .catch(err=>console.log(err))
-},[])
-  
+const Profile = () => {
+  const [data, setData] = useState([]);
+  const navigation = useNavigation();
+  const [email, setEmail] = useState('');
+  const [newData,setNewData] = useState('')
+
+  useEffect(() => {
+    getData();
+  }, []);
+ 
+
+  const getData = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem('UserData');
+      if (jsonValue != null) {
+        setNewData(JSON.parse(jsonValue));
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    AsyncStorage.getItem('emailId')
+  .then(email => {
+    if (email !== null) {
+      setEmail(email);
+    
+    }
+  })
+  .catch(error => {
+    console.error('Failed to retrieve email from AsyncStorage', error);
+  });
+  }, []);
+
+  useEffect(() => {
+    // Fetch data from the database
+    const getData = () => {
+      axios
+        .get('https://mint-legible-coyote.ngrok-free.app/signup')
+        .then((res) => {
+          console.log('Fetched Data:', res.data); // Debugging line
+          setData(res.data);
+        })
+        .catch((err) => console.log(err));
+    };
+
+    getData();
+  }, []);
+
+
+  const filterData= data.filter((item)=>item.email=== email)
+
+  const nav = ()=>{
+    navigation.navigate('Dashboard')
+  }
+
   return (
     <View style={styles.container}>
       <View>
+        <TouchableOpacity onPress={()=>nav()}>
+        <Image source={require('../../assets/images/arrow.png')} />
+        </TouchableOpacity>
         <Text style={styles.head}>My Profile</Text>
       </View>
       <View style={styles.cont1}>
@@ -30,31 +79,31 @@ useEffect(()=>{
         <View style={styles.details}>
           <Text style={styles.accounthead}>Full Name</Text>
           <Text style={styles.accountdetails}>
-            {data[0].name || 'Jhon Die'}
+            {filterData[0]?.name || 'John Doe'}
           </Text>
         </View>
         <View style={styles.details}>
           <Text style={styles.accounthead}>Email Address</Text>
           <Text style={styles.accountdetails}>
-            {data[0].email || 'abc@gmail.com'}
+            {filterData[0]?.email || 'abc@gmail.com'}
           </Text>
         </View>
         <View style={styles.details}>
-          <Text style={styles.accounthead}>PhoneNo</Text>
+          <Text style={styles.accounthead}>Phone No</Text>
           <Text style={styles.accountdetails}>
-            {data[data].phoneno || '+0 123 456 789'}
+            {filterData[0]?.phoneno || '+0 123 456 789'}
           </Text>
         </View>
         <View style={styles.details}>
           <Text style={styles.accounthead}>Country</Text>
           <Text style={styles.accountdetails}>
-            {data[0].country || 'Add Country Name'}
+            {filterData[0]?.country || 'Add Country Name'}
           </Text>
         </View>
         <View style={styles.details}>
           <Text style={styles.accounthead}>City</Text>
           <Text style={styles.accountdetails}>
-            {data[0].city || 'Add City Name'}
+            {filterData[0]?.city || 'Add City Name'}
           </Text>
         </View>
       </View>
@@ -76,6 +125,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     color: '#fff',
     textAlign: 'center',
+    marginBottom: 20
   },
   cont1: {
     borderWidth: 1,

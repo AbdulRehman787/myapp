@@ -1,8 +1,7 @@
 import React, { useState,useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Image,ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import Icon from 'react-native-vector-icons/FontAwesome';
+
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
@@ -10,14 +9,29 @@ import PhoneInput from 'react-native-phone-number-input';
 
 
 const EditProfile = () => {
+  const [newEmail,setNewEmail] =useState('')
   const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [phoneno, setPhoneNo] = useState('')
+  const [email, setEmail] = useState(newEmail)
+  const [phoneno, setPhoneno] = useState('')
   const [country, setCountry] = useState('')
   const [city, setCity] = useState('')
   const [imageUri, setImageUri] = useState(null);
   const [formattedPhoneNumber, setFormattedPhoneNumber] = useState('');
   const navigation = useNavigation()
+
+  useEffect(() => {
+    AsyncStorage.getItem('emailId')
+  .then(email => {
+    if (email !== null) {
+      setNewEmail(email);
+      // Use the email as needed
+    }
+  })
+  .catch(error => {
+    console.error('Failed to retrieve email from AsyncStorage', error);
+  });
+  }, []);
+
 
   const openImagePicker = () => {
     launchImageLibrary({}, (response) => {
@@ -36,53 +50,45 @@ const EditProfile = () => {
   };
   const data = {
     name: name,
-    email: email,
-    phoneno: phoneno,
+    email: newEmail,
+    phoneno: formattedPhoneNumber,
     country: country,
     city: city
   }
   const saveData = async () => {
     try {
-      if (!name || !email || !phoneno || !country || !city) {
+      if (!name || !phoneno || !country || !city) {
         Alert.alert('All Input requires');
         return;
       }
-  
-      const storedData = await AsyncStorage.getItem('UserData');
-      if (storedData) {
-        const storedUser = JSON.parse(storedData);
-  
-        // Check if the email matches
-        if (storedUser.email === email) {
-          // Update data on the backend
-          axios
-            .post('https://mint-legible-coyote.ngrok-free.app/update-profile', data)
-            .then(response => {
-              if (response.data.success) {
-                Alert.alert('Profile updated successfully');
-                navigation.navigate('My Profile')
-                // Optionally, update AsyncStorage with the new data
-                AsyncStorage.setItem('UserData', JSON.stringify(data));
-              
-                
-              } else {
-                Alert.alert('Failed to update profile');
-              }
-            })
-            .catch(err => {
-              console.error(err);
-              Alert.alert('An error occurred while updating profile');
-            });
-        } else {
-          Alert.alert('Email does not match');
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert('An error occurred');
+      
+else{
+  axios
+  .post('https://mint-legible-coyote.ngrok-free.app/update-profile', data)
+  .then(response => {
+    if (response.data.success) {
+      Alert.alert('Profile updated successfully');
+      navigation.navigate('My Profile')
+      // Optionally, update AsyncStorage with the new data
+      AsyncStorage.setItem('UserData', JSON.stringify(data));
+    } else {
+      Alert.alert('Failed to update profile');
     }
-  };
+  })
+  .catch(err => {
+    console.error(err);
+    Alert.alert('An error occurred while updating profile');
+  });
+}
+    }
+catch(err){
+  console.log(err)
+}
+}
+
+
   return (
+    <ScrollView>
     <View style={styles.container}>
       <Text style={styles.heading}>Edit Profile</Text>
       <View style={styles.imgcont}>
@@ -107,8 +113,7 @@ const EditProfile = () => {
         placeholder="Email"
         placeholderTextColor="#ccc"
         keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
+        defaultValue={newEmail}
 
       />
       <Text style={styles.head1}>Phone No</Text>
@@ -121,11 +126,11 @@ const EditProfile = () => {
               withDarkTheme
               withShadow
               placeholder="Enter phone number"
-              containerStyle={style.phoneInputContainer}
-              textContainerStyle={style.phoneInputTextContainer}
-              textInputStyle={style.phoneInputText}
-              codeTextStyle={style.phoneInputCodeText}
-              flagButtonStyle={style.phoneInputFlag}
+              containerStyle={styles.phoneInputContainer}
+              textContainerStyle={styles.phoneInputTextContainer}
+              textInputStyle={styles.phoneInputText}
+              codeTextStyle={styles.phoneInputCodeText}
+              flagButtonStyle={styles.phoneInputFlag}
             />
       <Text style={styles.head1}>Country Name</Text>
 
@@ -135,6 +140,7 @@ const EditProfile = () => {
         placeholderTextColor="#ccc"
         value={country}
         onChangeText={setCountry}
+        
       />
       <Text style={styles.head1}>City Name</Text>
 
@@ -150,6 +156,7 @@ const EditProfile = () => {
         <Text style={styles.buttonText}>Save Changes</Text>
       </TouchableOpacity>
     </View>
+    </ScrollView>
   );
 };
 

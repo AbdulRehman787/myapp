@@ -12,7 +12,7 @@ import {
 import axios from 'axios';
 
 import {useNavigation} from '@react-navigation/native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const Login = () => {
   const navigation = useNavigation();
   const [errmsg, setErrorMsg] = useState('');
@@ -36,17 +36,18 @@ const Login = () => {
 
     axios.post('https://mint-legible-coyote.ngrok-free.app/login', data)
         .then(res => {
-            console.log(res.data);
-            navigation.navigate('Dashborad')
-            // Redirect to dashboard or perform other actions upon successful login
-        })
+            AsyncStorage.setItem('emailId',email)
+            console.log('datasaved')
+            navigation.navigate('Dashboard')
+          
+})
         .catch(err => {
             if (err.response) {
-                setError(err.response.data.message);
+              setErrorMsg(err.response.data.message);
             } else if (err.request) {
-                setError("No response from the server. Please try again.");
+              setErrorMsg("No response from the server. Please try again.");
             } else {
-                setError("An error occurred. Please try again.");
+              setErrorMsg("An error occurred. Please try again.");
             }
         });
 };
@@ -227,6 +228,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     marginVertical: 10,
+    textAlign:"center"
   },
 }); 
  

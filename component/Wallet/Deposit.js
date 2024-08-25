@@ -4,12 +4,6 @@ import { useNavigation } from '@react-navigation/native';
 const Deposit = () => {
     const navigation = useNavigation();
 
-   
-    
-
- 
-
-   
     return (
         <View style={styles.container}>
             <Text style={styles.head}>Deposit</Text>
