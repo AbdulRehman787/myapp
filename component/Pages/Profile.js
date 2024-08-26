@@ -8,12 +8,12 @@ const Profile = () => {
   const [data, setData] = useState([]);
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
-  const [newData,setNewData] = useState('')
-
+  const [newData, setNewData] = useState('')
+  const [error, setError] = useState('')
   useEffect(() => {
     getData();
   }, []);
- 
+
 
   const getData = async () => {
     try {
@@ -28,15 +28,15 @@ const Profile = () => {
 
   useEffect(() => {
     AsyncStorage.getItem('emailId')
-  .then(email => {
-    if (email !== null) {
-      setEmail(email);
-    
-    }
-  })
-  .catch(error => {
-    console.error('Failed to retrieve email from AsyncStorage', error);
-  });
+      .then(email => {
+        if (email !== null) {
+          setEmail(email);
+
+        }
+      })
+      .catch(error => {
+        console.error('Failed to retrieve email from AsyncStorage', error);
+      });
   }, []);
 
   useEffect(() => {
@@ -55,17 +55,30 @@ const Profile = () => {
   }, []);
 
 
-  const filterData= data.filter((item)=>item.email=== email)
+  const filterData = data.filter((item) => item.email === email)
 
-  const nav = ()=>{
+  const nav = () => {
     navigation.navigate('Dashboard')
   }
 
+  useEffect(() => {
+    if (filterData) {
+      filterData.map((curelem)=>{
+        if(curelem.status===""){
+          console.log('account status',filterData)
+          setError('Verify your account');
+          navigation.navigate('Verify')
+        } else {
+          setError('Verified');
+        }
+      })
+    }
+  }, [filterData,navigation]);
   return (
     <View style={styles.container}>
       <View>
-        <TouchableOpacity onPress={()=>nav()}>
-        <Image source={require('../../assets/images/arrow.png')} />
+        <TouchableOpacity onPress={() => nav()}>
+          <Image source={require('../../assets/images/arrow.png')} />
         </TouchableOpacity>
         <Text style={styles.head}>My Profile</Text>
       </View>
@@ -105,6 +118,10 @@ const Profile = () => {
           <Text style={styles.accountdetails}>
             {filterData[0]?.city || 'Add City Name'}
           </Text>
+        </View>
+        <View style={styles.details}>
+          <Text style={styles.accounthead}>Account Status</Text>
+          <Text style={styles.accountdetails}>{error || 'Unverified'}</Text>
         </View>
       </View>
     </View>

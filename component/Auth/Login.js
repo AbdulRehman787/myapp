@@ -22,25 +22,21 @@ const Login = () => {
   const data={
     email,password
   }
-
   const handleLogin = () => {
     if (!email || !password) {
-        setError('Both email and password are required');
+        setErrorMsg('Both email and password are required');
         return;
     }
 
-    const data = {
-        email,
-        password
-    };
+    const data = { email, password };
 
     axios.post('https://mint-legible-coyote.ngrok-free.app/login', data)
         .then(res => {
-            AsyncStorage.setItem('emailId',email)
-            console.log('datasaved')
-            navigation.navigate('Dashboard')
-          
-})
+            const token = res.data.token; // Assuming the server returns a token
+            AsyncStorage.setItem('authToken', token); // Store the token
+            console.log('Token saved');
+            navigation.navigate('Dashboard');
+        })
         .catch(err => {
             if (err.response) {
               setErrorMsg(err.response.data.message);
@@ -51,6 +47,7 @@ const Login = () => {
             }
         });
 };
+
 
  
   return (
