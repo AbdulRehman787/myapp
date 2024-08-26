@@ -2,14 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Image , SafeAreaView } from 'react-native';
 
 const Verify = ({ navigation }) => {
-    
-    return (
 
+    return (
         <SafeAreaView style={styles.container}>
             <View>
             </View>
             <View>
-
                 <Text style={styles.head1}>Please Verify you are 18+</Text>
                 <Text style={styles.head2}>Real Time tracking of your food on the app once you placed the order</Text>
             </View>
@@ -18,6 +16,7 @@ const Verify = ({ navigation }) => {
             </View>
         </SafeAreaView>
     );
+    
 }
 
 const styles = StyleSheet.create({

@@ -67,13 +67,12 @@ const Profile = () => {
         if(curelem.status===""){
           console.log('account status',filterData)
           setError('Verify your account');
-          navigation.navigate('Verify')
         } else {
           setError('Verified');
         }
       })
     }
-  }, [filterData,navigation]);
+  }, [filterData]);
   return (
     <View style={styles.container}>
       <View>
@@ -121,7 +120,11 @@ const Profile = () => {
         </View>
         <View style={styles.details}>
           <Text style={styles.accounthead}>Account Status</Text>
+          <TouchableOpacity onPress={()=>navigation.navigate('Verify')}>
           <Text style={styles.accountdetails}>{error || 'Unverified'}</Text>
+
+          </TouchableOpacity>
+         
         </View>
       </View>
     </View>
