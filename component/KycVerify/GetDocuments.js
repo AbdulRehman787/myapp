@@ -23,6 +23,7 @@ const GetDocuments = () => {
   const [getData, setGetData] = useState([]);
   const [user_email, setUser_email] = useState('');
   const [user_id, setUser_id] = useState('');
+  const [user_name,setUser_name] =useState('')
   const [user_document_slect, setUser_document_slect] = useState('Select Option');
   const [error, setError] = useState('');
   const [selectedImage, setSelectedImage] = useState();
@@ -31,7 +32,7 @@ const GetDocuments = () => {
 
   useEffect(() => {
     axios
-      .get('https://srv416214.hstgr.cloud/register')
+      .get('https://mint-legible-coyote.ngrok-free.app/signup')
       .then((res) => setGetData(res.data))
       .catch((err) => console.log(err));
   }, []);
@@ -39,7 +40,7 @@ const GetDocuments = () => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await AsyncStorage.getItem('userdata');
+        const res = await AsyncStorage.getItem('UserData');
         setUpdate(JSON.parse(res));
       } catch (error) {
         console.error('Error fetching data from AsyncStorage:', error);
@@ -53,9 +54,11 @@ const GetDocuments = () => {
     if (update && getData) {
       const updatedValue = getData.find((curelem) => curelem.email === update.email);
       if (updatedValue) {
-        const { id, email } = updatedValue;
-        setUser_id(id);
+        const { user_id, email,name} = updatedValue;
+        
+        setUser_id(user_id);
         setUser_email(email);
+        setUser_name(name)
       }
     }
   }, [update, getData]);
@@ -113,27 +116,53 @@ const GetDocuments = () => {
     { key: '3', value: 'Passport' },
     { key: '4', value: 'National Id Card' },
   ];
+  const data = {
+    front_image: frontImage,
+    back_image: backImage,
+    user_document_slect,
+    user_email,
+    user_name,
+    user_id,
+  };
+  console.log(data)
 
   const AddProduct = async () => {
-    if (!selectedImage) {
-      setError('Please add your document image.');
-    } else if (user_document_slect === 'Select Option') {
+    if (user_document_slect === 'Select Option') {
       setError('Please select your document name.');
     } else {
       setError('');
-      const data = {
-        user_documents_img: selectedImage,
-        user_document_slect,
-        user_email,
-        user_id,
-      };
+  
+      // Create a FormData object
+      const formData = new FormData();
+      formData.append('front_image', {
+        uri: frontImage,
+        type: 'image/jpeg', // or the appropriate MIME type
+        name: 'frontImage.jpg', // or the original filename
+      });
+      formData.append('back_image', {
+        uri: backImage,
+        type: 'image/jpeg', // or the appropriate MIME type
+        name: 'backImage.jpg', // or the original filename
+      });
+      formData.append('user_document_slect', user_document_slect);
+      formData.append('user_email', user_email);
+      formData.append('user_name', user_name);
+      formData.append('user_id', user_id);
+  
+      // Send the request
       axios
-        .post('https://srv416214.hstgr.cloud/documents', data)
-        .then(() => navigation.navigate("AllowLocation"))
-        .catch(() => Alert.alert('Server down unexpectedly'));
+        .post('https://mint-legible-coyote.ngrok-free.app/documents', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then(() => console.log('Data will be added'))
+        .catch((err) => {
+          console.error(err);
+          Alert.alert('Server down unexpectedly');
+        });
     }
   };
-
   return (
     <SafeAreaView style={styles.container}>
       <View>

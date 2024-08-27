@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 const DepositPage = () => {
@@ -24,6 +24,9 @@ const DepositPage = () => {
     }
   };
  
+  const upi =()=>{
+    Alert.alert('hello World')
+  }
   return (
     <View style={styles.container}>
       <Text style={styles.head}>Deposit Amount</Text>
