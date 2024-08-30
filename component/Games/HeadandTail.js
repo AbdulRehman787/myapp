@@ -1,15 +1,70 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput, Animated, Alert } from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios, { getAdapter } from 'axios';
 const HeadandTail = () => {
   const [selectedSide, setSelectedSide] = useState(null);
   const [bidAmount, setBidAmount] = useState('');
   const [animationValue] = useState(new Animated.Value(0)); // Animation value for flipping
   const [flippedSide, setFlippedSide] = useState(null);
   const [result, setResult] = useState('');
+  const [data,setData] = useState([])
+  const [email,setEmail] = useState('')
+  const [user_id,setUserId] = useState('')
+  const [username,setUserName] = useState('')
+  const [userEmail,setUserEmail] = useState('')
 
   const selectHead = () => setSelectedSide('Head');
   const selectTail = () => setSelectedSide('Tail');
+
+ 
+
+  const animatedRotation = animationValue.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: ['0deg', '360deg', '720deg'], // Two full rotations
+  });
+
+  useEffect(()=>{
+    const getData=()=>{
+       axios.get('https://mint-legible-coyote.ngrok-free.app/signup')
+       .then(res=>setData(res.data))
+       .catch(err=> console.log(err))
+    }
+    getData()
+  },[])
+
+
+  useEffect(()=>{
+   AsyncStorage.getItem('emailId')
+   .then(email =>{
+    if(email !==null)
+      setEmail(email)
+   })
+   .catch(err=>{
+    console.log('Dont Fetch Email')
+   })
+  },[])
+
+
+  const filterData=data.filter((item)=>item.email=== email)
+
+  useEffect(() => {
+    if (filterData.length > 0) {
+      const user = filterData[0]; // Assuming the filter will return only one user
+      setUserId(user.user_id); // Update user_id state
+      setUserName(user.name); // Update username state
+      setUserEmail(user.email); // Update userEmail state
+    }
+  }, [filterData]);
+
+  const data1= {
+    user_id:user_id,
+    user_name:username,
+    user_email:userEmail,
+    game_name: 'Head & Tail',
+    game_status: result,
+    bet_price: bidAmount
+  }
 
   const handleFlip = () => {
     if (selectedSide === null) {
@@ -31,21 +86,23 @@ const HeadandTail = () => {
 
       // Check if the user won
       if (selectedSide === outcome) {
+        postData()
         setResult(`Congratulations! You selected ${selectedSide} and won the game.`);
       } else {
+        postData()
         setResult(`Sorry, you selected ${selectedSide}. The coin landed on ${outcome}. Better luck next time!`);
       }
-
       // Reset the selection
       setSelectedSide(null);
     });
   };
 
-  const animatedRotation = animationValue.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: ['0deg', '360deg', '720deg'], // Two full rotations
-  });
-
+const postData=()=>{
+  axios.post('https://mint-legible-coyote.ngrok-free.app/games/data',data1)
+  .then(res=> console.log(res)
+  .catch(err=>console.log(err))
+  )
+}
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Head or Tail</Text>

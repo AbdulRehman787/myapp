@@ -11,15 +11,21 @@ const Home = () => {
         try {
           const jsonValue = await AsyncStorage.getItem('authToken');
           if (jsonValue != null) {
+            console.log('aaaaaa')
             navigation.navigate('Dashboard')
+          }
+          else{
+            navigation.navigate('HomeScreenone')
           }
         } catch (err) {
          navigation.navigate('HomeScreenone')
+         console.log('Data not fetech', err)
         }
       };
   
 
     getData();
+  
   }, []);
 
   return (

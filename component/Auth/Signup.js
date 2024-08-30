@@ -8,6 +8,7 @@ import {
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
+  Alert,
 } from 'react-native';
 import axios from 'axios';
 import PhoneInput from 'react-native-phone-number-input';
@@ -27,6 +28,8 @@ const Signup = () => {
     email: email,
     phoneno: formattedPhoneNumber,
     password: password,
+    country:"",
+    city:"",
   };
 
 
@@ -40,10 +43,17 @@ const Signup = () => {
       axios
         .post('https://mint-legible-coyote.ngrok-free.app/signup', data)
         .then(res => {
-          console.log(res.data);
-          navigation.navigate('Dashboard');
+      
+          Alert.alert('Your account his created')
+          
+       
+         
           AsyncStorage.setItem("UserData",JSON.stringify(data))
-          .then(res=>console.log('Data Saved'))
+          .then(res=>{console.log('Data Saved')
+            navigation.navigate('Login')
+          }
+        
+        )
           .catch(err=> console.log(err))
         })
         .catch(err => {
@@ -106,6 +116,8 @@ const Signup = () => {
               textInputStyle={style.phoneInputText}
               codeTextStyle={style.phoneInputCodeText}
               flagButtonStyle={style.phoneInputFlag}
+              
+              
             />
             <Text style={style.inputLabel}>Enter Password</Text>
             <TextInput

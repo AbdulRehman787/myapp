@@ -31,6 +31,7 @@ const Profile = () => {
       .then(email => {
         if (email !== null) {
           setEmail(email);
+          console.log(email)
 
         }
       })
@@ -56,7 +57,7 @@ const Profile = () => {
 
 
   const filterData = data.filter((item) => item.email === email)
-
+console.log(filterData)
   const nav = () => {
     navigation.navigate('Dashboard')
   }

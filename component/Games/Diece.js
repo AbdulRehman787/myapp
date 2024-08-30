@@ -25,7 +25,7 @@ const DiceGame = () => {
   const [bidAmount, setBidAmount] = useState('');
   const [result, setResult] = useState('');
   const [error, setError] = useState('');
-
+const 
   const randomNum = (min = 1, max = 6) => Math.floor(Math.random() * (max - min + 1)) + min;
 
   const getDiceNum = (prev) => {

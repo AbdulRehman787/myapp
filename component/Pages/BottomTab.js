@@ -11,7 +11,7 @@ const Tab = createBottomTabNavigator();
 const BottomTab = () => {
   return (
     <Tab.Navigator>
-        <Tab.Screen name='Dashborad'  component={Dashboard}/>
+        <Tab.Screen name='Dashboard'  component={Dashboard}/>
         <Tab.Screen name='Wallet'  component={Wallet}/>
         <Tab.Screen name='Profile'  component={Profile}/>
         <Tab.Screen name='Setting'  component={Setting}/>

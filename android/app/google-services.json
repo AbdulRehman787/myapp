@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "246969106335",
+    "project_id": "sapnokilottery",
+    "storage_bucket": "sapnokilottery.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:246969106335:android:2ef0bf89e2e9c30b3087aa",
+        "android_client_info": {
+          "package_name": "com.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD48GfwXZUoVzVQJ4AKQvKHAOmIJEUHy7c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

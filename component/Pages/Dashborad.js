@@ -54,55 +54,70 @@ const winnerdata=[
   },
 ]
 const Dashboard = () => {
+  const [data, setData] = useState([]);
   const navigation = useNavigation();
-  const [newData,setNewData]= useState('')
-
-  const dispatch = useDispatch();
-  const balance = useSelector((state) => state.balance.balance);
-  const transactions = useSelector((state) => state.transactions.transactions);
-
-  useEffect(() => {
-    // Fetch the balance and transactions from the backend (mocking it here)
-    const fetchData = async () => {
-      const balanceResponse = await axios.get('/api/balance');
-      const transactionsResponse = await axios.get('/api/transactions');
-      
-      dispatch({ type: 'SET_BALANCE', payload: balanceResponse.data.balance });
-      dispatch({ type: 'SET_TRANSACTIONS', payload: transactionsResponse.data.transactions });
-    };
-
-    fetchData();
-  }, [dispatch]);
-
-
+  const [email, setEmail] = useState('');
+  const [newData, setNewData] = useState('')
+  const [error, setError] = useState('')
   useEffect(() => {
     getData();
   }, []);
- 
+
 
   const getData = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem('UserData');
       if (jsonValue != null) {
         setNewData(JSON.parse(jsonValue));
+        console.log('newdata', newData)
       }
     } catch (err) {
       console.log(err);
     }
   };
 
-        const userNameInitials = newData.name ? newData.name.slice(0, 2).toUpperCase() : '';
+  useEffect(() => {
+    AsyncStorage.getItem('emailId')
+      .then(email => {
+        if (email !== null) {
+          setEmail(email);
+       
+
+        }
+      })
+      .catch(error => {
+        console.error('Failed to retrieve email from AsyncStorage', error);
+      });
+  }, []);
+
+  useEffect(() => {
+    // Fetch data from the database
+    const getData = () => {
+      axios
+        .get('https://mint-legible-coyote.ngrok-free.app/signup')
+        .then((res) => {
+          console.log('Fetched Data:', res.data); // Debugging line
+          
+        })
+        .catch((err) => console.log(err));
+    };
+
+    getData();
+  }, []);
+
 
 
   return (
+    <>
     <ScrollView>
       <View style={styles.container}>
         <View style={styles.cont1}>
           <TouchableOpacity style={styles.cont1img} onPress={()=> navigation.navigate('My Profile')}>
-          <Text style={styles.cont1imgtext} >{userNameInitials}</Text>
+        
+              <Text style={styles.cont1imgtext}>{newData.name}</Text>
+          
           </TouchableOpacity>
           <TouchableOpacity onPress={()=> navigation.navigate('Notification')}>
-            
             <Image source={require('../../assets/images/notification.jpg')} style={styles.notificationImg} />
           </TouchableOpacity>
         </View>
@@ -110,7 +125,7 @@ const Dashboard = () => {
         <View style={styles.cont2}>
           <View>
             <Text style={styles.wallethead}>Wallet OverView</Text>
-            <Text style={styles.walletprice}>${balance.toFixed(2)}</Text>
+            <Text style={styles.walletprice}>$20</Text>
           </View>
           <View>
             <TouchableOpacity style={styles.btn} onPress={()=>navigation.navigate('Deposit')}><Text style={styles.btntext}>Deposit</Text></TouchableOpacity>
@@ -170,7 +185,9 @@ const Dashboard = () => {
           </View>
         </View>
       </View>
+      
     </ScrollView>
+    </>
   )
 }
 

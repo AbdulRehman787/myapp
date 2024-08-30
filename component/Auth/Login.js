@@ -33,7 +33,8 @@ const Login = () => {
     axios.post('https://mint-legible-coyote.ngrok-free.app/login', data)
         .then(res => {
             const token = res.data.token; // Assuming the server returns a token
-            AsyncStorage.setItem('authToken', token); // Store the token
+            AsyncStorage.setItem('authToken', token); 
+            AsyncStorage.setItem('emailId', email)
             console.log('Token saved');
             navigation.navigate('Dashboard');
         })

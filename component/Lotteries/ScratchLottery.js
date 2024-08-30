@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
 
-const App = () => {
+const ScratchLottery = () => {
   const [userNumber, setUserNumber] = useState(null);
   const adminNumber = Math.floor(Math.random() * 10) + 1;
   const [revealed, setRevealed] = useState(false);
@@ -37,7 +37,7 @@ const App = () => {
   );
 };
 
-export default App;
+export default ScratchLottery;
 
 const styles = StyleSheet.create({
   container: {
