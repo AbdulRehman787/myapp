@@ -46,7 +46,7 @@ const DepositPage = () => {
         </Text>
       </TouchableOpacity>
       
-      <TouchableOpacity style={styles.btn} onPress={phonePay}>
+      <TouchableOpacity style={styles.btn} onPress={handleDeposit}>
         <Text style={styles.btntext}>Deposit</Text>
       </TouchableOpacity>
     </View>

@@ -1,17 +1,33 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing, Image, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing, Image, Alert, TextInput } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list';
 
 const Spinner = () => {
   const [spinValue] = useState(new Animated.Value(0));
   const [result, setResult] = useState('');
   const [userSelect, setUserSelect] = useState('');
-const [error,setError] = useState('')
+  const [error, setError] = useState('');
+  const [betAmount, setBetAmount] = useState(''); // State for bet amount
+  const [balance, setBalance] = useState(1000); // Initial balance of 1000 USDT
+  const [showResult, setShowResult] = useState(false); // State to control result display delay
   const prizes = ['Car', 'Bike', 'Phone', 'Laptop', 'Watch', 'Camera', 'House', 'Macbook'];
 
   const startSpin = () => {
-    // Reset spin value to 0
+    const bet = parseFloat(betAmount);
+
+    if (!bet || bet <= 0) {  // Validate bet amount
+      Alert.alert('Invalid Bet', 'Please enter a valid bet amount.');
+      return;
+    }
+
+    if (bet > balance) {  // Check if bet is more than available balance
+      Alert.alert('Insufficient Balance', 'You do not have enough balance to place this bet.');
+      return;
+    }
+
+    // Reset spin value to 0 and hide the previous result
     spinValue.setValue(0);
+    setShowResult(false);
 
     // Calculate a random spin duration and final spin position
     const duration = 4000;
@@ -28,10 +44,18 @@ const [error,setError] = useState('')
 
       // Check if the user selection matches the result
       if (prizes[endValue] === userSelect) {
-        setError(`Congratulations! You won: ${userSelect}`);
+        const profit = 90;  // Profit for the user
+        setBalance(balance + profit);  // Update balance with profit
+        setError(`You win!`);
       } else {
-        setError(`Better luck next time! You selected: ${userSelect}, but the result was: ${prizes[endValue]}`);
+        setBalance(balance - bet);  // Update balance by subtracting the bet amount
+        setError(`You Lose!`);
       }
+
+      // Delay showing the result by 5 seconds
+      setTimeout(() => {
+        setShowResult(true);
+      }, 5000);
     });
   };
 
@@ -43,6 +67,7 @@ const [error,setError] = useState('')
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Spinner Game</Text>
+      <Text style={styles.balanceText}>Current Balance: ${balance.toFixed(2)} USDT</Text> 
       <Animated.View style={[styles.spinner, { transform: [{ rotate: spinRotation }] }]}>
         <Image source={require('../../assets/images/spinner.png')} style={styles.spinnerImage} />
       </Animated.View>
@@ -60,6 +85,18 @@ const [error,setError] = useState('')
         />
       </View>
 
+      <View style={styles.inputContainer}>
+        <Text style={styles.dropdownLabel}>Enter Bet Amount:</Text>
+        <TextInput
+          style={styles.betInput}
+          keyboardType="numeric"
+          value={betAmount}
+          onChangeText={setBetAmount}
+          placeholder="Enter bet amount"
+          placeholderTextColor="#999"
+        />
+      </View>
+
       <TouchableOpacity style={styles.spinButton} onPress={startSpin} disabled={!userSelect}>
         <Text style={styles.spinButtonText}>SPIN</Text>
       </TouchableOpacity>
@@ -68,7 +105,6 @@ const [error,setError] = useState('')
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#021324',
@@ -80,12 +116,19 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: 'white',
     fontFamily: 'Poppins-Regular',
-    marginBottom: 20,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  balanceText: {
+    fontSize: 18,
+    color: 'white',
+    fontFamily: 'Poppins-Regular',
+    marginBottom: 10,
     textAlign: 'center',
   },
   spinner: {
     width: 250,
-    height: 250,
+    height: 230,
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 'auto',
@@ -96,7 +139,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   spinButton: {
-    marginTop: 30,
+    marginTop: 20,
     backgroundColor: '#f0b000',
     paddingVertical: 10,
     paddingHorizontal: 20,
@@ -109,7 +152,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   dropdownContainer: {
-    marginVertical: 20,
+    marginVertical: 10,
   },
   dropdownLabel: {
     color: 'white',
@@ -118,27 +161,38 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   dropdownText: {
-    color: '#021324', // Adjusted for visibility on a white background
+    color: '#021324',
   },
   dropdownItem: {
     backgroundColor: '#fff',
     color: "#021324",
   },
   selectedItem: {
-    backgroundColor: '#fff',  // Selected item color
-    color: '#021324',  // Text color for the selected item
+    backgroundColor: '#fff',
+    color: '#021324',
   },
   dropdownBox: {
-    backgroundColor: '#fff',  // White background for the dropdown container
+    backgroundColor: '#fff',
     borderRadius: 8,
+  },
+  inputContainer: {
+    marginVertical: 10,
+  },
+  betInput: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 10,
+    color: '#021324',
+    fontFamily: 'Poppins-Regular',
   },
   resultText: {
     fontSize: 18,
     color: 'white',
     fontFamily: 'Poppins-Regular',
-    marginTop: 20,
+    marginTop: 10,
     textAlign: 'center',
   },
 });
+
 
 export default Spinner;

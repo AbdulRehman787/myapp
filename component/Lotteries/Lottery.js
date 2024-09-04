@@ -1,10 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import axios from 'axios';
 
 const Lottery = () => {
   const [selectedNumbers, setSelectedNumbers] = useState([]);
   const [amount, setAmount] = useState('');
+  const [data,setData] = useState([]);
 
+  useEffect(()=>{
+   const getData=()=>{
+    axios.get('https://mint-legible-coyote.ngrok-free.app/lotteryNumber')
+    .then(res=>setData(res.data))
+    .catch(err=>console.log(err))
+   }
+   getData();
+  },[])
+
+  console.log(data)
   const toggleNumber = (number) => {
     if (selectedNumbers.includes(number)) {
       setSelectedNumbers(selectedNumbers.filter((n) => n !== number));
@@ -12,7 +24,7 @@ const Lottery = () => {
       setSelectedNumbers([...selectedNumbers, number]);
     }
   };
-
+ 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.header}>Lottery</Text>

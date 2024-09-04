@@ -7,6 +7,9 @@ const initialBalanceState = {
     transactions: [],
   };
   
+
+  
+
   export const balanceReducer = (state = initialBalanceState, action) => {
     switch (action.type) {
       case 'SET_BALANCE':

@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { useNavigation } from '@react-navigation/native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useSelector, useDispatch } from 'react-redux'
+import { fetchTransactions,fetchWalletBalance } from '../redux/actions/WalletAction'
 import axios from 'axios'
 
 const { width, height } = Dimensions.get('window');
@@ -54,6 +55,14 @@ const winnerdata=[
   },
 ]
 const Dashboard = () => {
+
+  const dispatch = useDispatch();
+
+  // Accessing the balance and transactions from the Redux store
+  const balance = useSelector((state) => state.balance.balance);
+  const transactions = useSelector((state) => state.transactions.transactions);
+
+
   const [data, setData] = useState([]);
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
@@ -69,7 +78,7 @@ const Dashboard = () => {
       const jsonValue = await AsyncStorage.getItem('UserData');
       if (jsonValue != null) {
         setNewData(JSON.parse(jsonValue));
-        console.log('newdata', newData)
+        
       }
     } catch (err) {
       console.log(err);
@@ -91,20 +100,20 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    // Fetch data from the database
-    const getData = () => {
-      axios
-        .get('https://mint-legible-coyote.ngrok-free.app/signup')
-        .then((res) => {
-          console.log('Fetched Data:', res.data); // Debugging line
-          
-        })
-        .catch((err) => console.log(err));
+    const fetchData = async () => {
+      try {
+        // Dispatch actions to fetch wallet balance and transactions
+        await dispatch(fetchWalletBalance());
+        await dispatch(fetchTransactions());
+        setLoading(false);
+      } catch (err) {
+        setError(err);
+        setLoading(false);
+      }
     };
 
-    getData();
-  }, []);
-
+    fetchData();
+  }, [dispatch]);
 
 
   return (
@@ -125,7 +134,7 @@ const Dashboard = () => {
         <View style={styles.cont2}>
           <View>
             <Text style={styles.wallethead}>Wallet OverView</Text>
-            <Text style={styles.walletprice}>$20</Text>
+            <Text style={styles.walletprice}>${balance}</Text>
           </View>
           <View>
             <TouchableOpacity style={styles.btn} onPress={()=>navigation.navigate('Deposit')}><Text style={styles.btntext}>Deposit</Text></TouchableOpacity>
@@ -320,3 +329,4 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
 })
+

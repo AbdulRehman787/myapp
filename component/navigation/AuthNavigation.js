@@ -47,6 +47,7 @@ import UpComingLottery from './../Pages/UpcomingLottery';
 import Signout from '../Pages/Signout'
 import DemoAccount from '../Wallet/DemoAccount'
 import RealAccount from '../Wallet/RealAccount'
+import UpiPayment from '../Wallet/UpiPayment'
 const Stack = createNativeStackNavigator()
 const AuthNavigation = () => {
   return (
@@ -98,6 +99,7 @@ const AuthNavigation = () => {
         <Stack.Screen name='UsdtPayment' component={UsdtPayment} />
         <Stack.Screen name='UsdtTransfer' component={UsdtTransfer} />
         <Stack.Screen name='Card Payment' component={CardPayment} />
+        <Stack.Screen name='UpiPayment' component={UpiPayment} />
      
       </Stack.Navigator>
       

@@ -1,4 +1,3 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -13,22 +12,20 @@ import {
 } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
 import ImagePicker from 'react-native-image-crop-picker';
 import { androidCameraPermission } from './permission';
 
 const GetDocuments = () => {
-  const navigation = useNavigation();
   const [update, setUpdate] = useState();
   const [getData, setGetData] = useState([]);
   const [user_email, setUser_email] = useState('');
   const [user_id, setUser_id] = useState('');
-  const [user_name,setUser_name] =useState('')
+  const [user_name, setUser_name] = useState('');
   const [user_document_slect, setUser_document_slect] = useState('Select Option');
   const [error, setError] = useState('');
-  const [selectedImage, setSelectedImage] = useState();
-  const [frontImage,setFrontImage] = useState()
-  const [backImage,setBackImage] = useState()
+  const [frontImage, setFrontImage] = useState();
+  const [backImage, setBackImage] = useState();
 
   useEffect(() => {
     axios
@@ -54,11 +51,10 @@ const GetDocuments = () => {
     if (update && getData) {
       const updatedValue = getData.find((curelem) => curelem.email === update.email);
       if (updatedValue) {
-        const { user_id, email,name} = updatedValue;
-        
+        const { user_id, email, name } = updatedValue;
         setUser_id(user_id);
         setUser_email(email);
-        setUser_name(name)
+        setUser_name(name);
       }
     }
   }, [update, getData]);
@@ -77,14 +73,13 @@ const GetDocuments = () => {
       );
     }
   };
-  
+
   const openCamera = (side) => {
     ImagePicker.openCamera({
       width: 300,
       height: 400,
       cropping: true,
     }).then(image => {
-      console.log(`${side} image selected from camera:`, image);
       if (side === 'front') {
         setFrontImage(image.path);
       } else {
@@ -92,14 +87,13 @@ const GetDocuments = () => {
       }
     }).catch(err => console.log(err));
   };
-  
+
   const openGallery = (side) => {
     ImagePicker.openPicker({
       width: 300,
       height: 400,
       cropping: true,
     }).then(image => {
-      console.log(`${side} image selected from gallery:`, image);
       if (side === 'front') {
         setFrontImage(image.path);
       } else {
@@ -107,8 +101,6 @@ const GetDocuments = () => {
       }
     }).catch(err => console.log(err));
   };
-
-
 
   const data1 = [
     { key: '1', value: 'Select Option' },
@@ -116,53 +108,49 @@ const GetDocuments = () => {
     { key: '3', value: 'Passport' },
     { key: '4', value: 'National Id Card' },
   ];
-  const data = {
-    front_image: frontImage,
-    back_image: backImage,
-    user_document_slect,
-    user_email,
-    user_name,
-    user_id,
-  };
-  console.log(data)
 
   const AddProduct = async () => {
     if (user_document_slect === 'Select Option') {
       setError('Please select your document name.');
     } else {
       setError('');
-  
-      // Create a FormData object
+
       const formData = new FormData();
-      formData.append('front_image', {
-        uri: frontImage,
-        type: 'image/jpeg', // or the appropriate MIME type
-        name: 'frontImage.jpg', // or the original filename
-      });
-      formData.append('back_image', {
-        uri: backImage,
-        type: 'image/jpeg', // or the appropriate MIME type
-        name: 'backImage.jpg', // or the original filename
-      });
+      if (frontImage) {
+        formData.append('front_image', {
+          uri: frontImage,
+          type: 'image/jpeg',
+          name: 'frontImage.jpg',
+        });
+      }
+      if (backImage) {
+        formData.append('back_image', {
+          uri: backImage,
+          type: 'image/jpeg',
+          name: 'backImage.jpg',
+        });
+      }
       formData.append('user_document_slect', user_document_slect);
       formData.append('user_email', user_email);
       formData.append('user_name', user_name);
       formData.append('user_id', user_id);
-  
-      // Send the request
+
       axios
         .post('https://mint-legible-coyote.ngrok-free.app/documents', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         })
-        .then(() => console.log('Data will be added'))
+        .then(() => {
+          Alert.alert('Success', 'Documents uploaded successfully!');
+        })
         .catch((err) => {
           console.error(err);
           Alert.alert('Server down unexpectedly');
         });
     }
   };
+
   return (
     <SafeAreaView style={styles.container}>
       <View>
@@ -182,113 +170,96 @@ const GetDocuments = () => {
         />
       </View>
       <ScrollView>
-     <View>
-      <Text style={styles.label}>Front Image:</Text>
-      <TouchableOpacity onPress={() => onSelectImage('front')}>
-        {frontImage ? (
-          <Image source={{ uri: frontImage }} style={styles.img1} />
-        ) : (
-          <Image
-            style={styles.img1}
-            source={require('../../assets/images/verify.jpg')}
-          />
-        )}
-      </TouchableOpacity>
-    </View>
+        <View>
+          <Text style={styles.label}>Front Image:</Text>
+          <TouchableOpacity onPress={() => onSelectImage('front')}>
+            {frontImage ? (
+              <Image source={{ uri: frontImage }} style={styles.img1} />
+            ) : (
+              <Image
+                style={styles.img1}
+                source={require('../../assets/images/verify.jpg')}
+              />
+            )}
+          </TouchableOpacity>
+        </View>
 
-    <View>
-      <Text style={styles.label}>Back Image:</Text>
-      <TouchableOpacity onPress={() => onSelectImage('back')}>
-        {backImage ? (
-          <Image source={{ uri: backImage }} style={styles.img1} />
-        ) : (
-          <Image
-            style={styles.img1}
-            source={require('../../assets/images/verify.jpg')}
-          />
-        )}
-      </TouchableOpacity>
-    </View>
-    </ScrollView>
-      <View>
-        <Text style={styles.head2}>
-          Real-time tracking of your order on the app once you place it.
-        </Text>
-        <Text style={styles.error}>{error}</Text>
-      </View>
-      <View>
-        <TouchableOpacity onPress={AddProduct} style={styles.btn}>
-          <Text style={styles.btn_head}>Submit</Text>
+        <View>
+          <Text style={styles.label}>Back Image:</Text>
+          <TouchableOpacity onPress={() => onSelectImage('back')}>
+            {backImage ? (
+              <Image source={{ uri: backImage }} style={styles.img1} />
+            ) : (
+              <Image
+                style={styles.img1}
+                source={require('../../assets/images/verify.jpg')}
+              />
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+
+        <TouchableOpacity style={styles.button} onPress={AddProduct}>
+          <Text style={styles.btnText}>Add</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </SafeAreaView>
-
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 30,
-    paddingHorizontal: 10,
-    backgroundColor: '#021324',
-    height: '100%',
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 20,
   },
   mainhead: {
-    fontSize: 26,
-    fontFamily: "Poppins-Regular",
-    color: "#fff",
-    textAlign: "center",
+    fontSize: 24,
+    fontWeight: 'bold',
   },
   head1: {
     fontSize: 16,
-    textAlign: 'left',
-    alignItems: 'center',
     marginVertical: 10,
-    color: "#FFF",
-    fontFamily: "Poppins-Regular",
   },
-  head2: {
-    fontSize: 16,
-    textAlign: 'center',
-    alignItems: 'center',
-    marginVertical: 20,
-    marginHorizontal: 10,
-    fontFamily: "Poppins-Regular",
-    color: "#fff",
+  dropdownContainer: {
+    marginBottom: 20,
   },
-  btn: {
-    backgroundColor: '#FFD700',
-    borderRadius: 50,
-    padding: 15,
+  dropdownText: {
+    color: '#000',
+  },
+  dropdownInput: {
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+    borderColor: '#ddd',
     borderWidth: 1,
-    borderColor: '#FFD700',
-    marginVertical: 10,
-  },
-  btn_head: {
-    textAlign: 'center',
-    color: '#fff',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
   img1: {
-    height: 200,
-    width: '100%',
-    resizeMode: 'cover',
-    borderRadius: 10,
+    width: 100,
+    height: 100,
+    borderRadius: 8,
     marginVertical: 10,
+  },
+  label: {
+    fontSize: 16,
+    marginVertical: 10,
+  },
+  button: {
+    backgroundColor: '#ffd700',
+    paddingVertical: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  btnText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   error: {
     color: 'red',
-    fontWeight: 'bold',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  dropdownContainer: {
-    marginVertical: 20,
-  },
-  dropdownText: {
-    color: "#fff",
-  },
-  dropdownInput: {
-    color: "#fff",
+    marginVertical: 10,
   },
 });
 
