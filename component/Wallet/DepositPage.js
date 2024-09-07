@@ -16,8 +16,8 @@ const DepositPage = () => {
       navigation.navigate('UsdtPayment', { amount: selectedAmount, paymentMethod: selectedPaymentMethod });
     } else if (selectedPaymentMethod === 'Google Pay') {
       navigation.navigate('GooglePayPayment', { amount: selectedAmount, paymentMethod: selectedPaymentMethod });
-    } else if (selectedPaymentMethod === 'Chinon Pay') {
-      navigation.navigate('ChinonPayPayment', { amount: selectedAmount, paymentMethod: selectedPaymentMethod });
+    } else if (selectedPaymentMethod === 'Phone Pay') {
+      navigation.navigate('Phone Pay', { amount: selectedAmount, paymentMethod: selectedPaymentMethod });
     } else {
       console.log('No payment method selected');
     }

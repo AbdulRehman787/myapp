@@ -1,153 +1,148 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TextInput, Button, Alert, StyleSheet, Image } from 'react-native';
 import axios from 'axios';
+import QRCode from 'react-native-qrcode-svg';
 
+const UpiPayment = ({ navigation, route }) => {
+  const [loading, setLoading] = useState(false);
+  const [upiId, setUpiId] = useState('');
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [transactionId, setTransactionId] = useState('');
+  const [qrValue, setQrValue] = useState('');
+  const [balance, setBalance] = useState(0); // State to store the balance
 
-const UpiPayment = ({ route }) => {
-    const [utr, setUtr] = useState('');
-    const [paymentConfirmed, setPaymentConfirmed] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const { amount } = route.params;
+  const [username, setUsername] = useState(''); // New state for username
+  const [accountNumber, setAccountNumber] = useState(''); // New state for account number
+  const [userId, setUserId] = useState(''); // New state for user ID
 
+  const { amount } = route.params;
 
-    
-    const handleConfirmPayment = async () => {
-        if (!utr) {
-            Alert.alert('Error', 'Please enter the UTR number');
-            return;
-        }
+  const handleDeposit = async () => {
+    if (!amount || !upiId || !username || !accountNumber || !userId) {
+      Alert.alert('Error', 'Please fill in all the details.');
+      return;
+    }
 
-        setLoading(true);
+    try {
+      setLoading(true);
+      const response = await axios.post('https://mint-legible-coyote.ngrok-free.app/initiate-deposit', {
+        userId,
+        amount,
+        paymentMethod: 'UPI',
+        upiId,
+        username,
+        accountNumber
+      });
 
-        try {
-            const response = await axios.post('http://localhost:3001/confirm-payment', {
-                utr,
-                amount,
-            });
+      if (response.data) {
+        setUpiId(response.data.upiId);
+        setQrCodeUrl(response.data.qrCodeUrl);
+        setTransactionId(response.data.transactionId);
+        Alert.alert('Payment Details', `Please complete the payment to UPI ID: ${response.data.upiId}`);
+        navigation.navigate('ConfirmPayment', { transactionId: response.data.transactionId });
+      }
+    } catch (error) {
+      console.error('Error initiating deposit:', error);
+      Alert.alert('Error', 'Failed to initiate deposit. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            if (response.data.success) {
-                Alert.alert('Success', 'Payment confirmed successfully!');
-                setPaymentConfirmed(true); // Payment confirmed
-            } else {
-                Alert.alert('Failed', 'Failed to confirm payment: ' + response.data.message);
-            }
-        } catch (error) {
-            console.error('Error confirming payment:', error);
-            Alert.alert('Error', 'Error confirming payment. Please try again.');
-        } finally {
-            setLoading(false);
-        }
-    };
+  const generateQRCode = () => {
+    const qrData = `upi://pay?pa=${upiId}&pn=${username}&am=${amount}&cu=INR&tn=Payment`; // Standard UPI QR format
+    setQrValue(qrData);
+  };
 
-    return (
-        <View style={styles.container}>
-            <Text style={styles.head}>Upi Payment</Text>
-            {paymentConfirmed ? (
-                <View style={styles.confirmation}>
-                    <Text style={styles.successText}>Payment Successful! Your wallet has been updated.</Text>
-                </View>
-            ) : (
-                <>
-                    <View style={styles.qrContainer}>
-                        <QRCode
-                            value={`upi://pay?pa=your-upi-id@upi&pn=YourName&am=${amount}&cu=INR`}
-                            size={300}
-                            backgroundColor="white"
-                        />
-                    </View>
-                    <Text style={styles.amountText}>₹ {amount}/-</Text>
-                    <Text style={styles.infoText}>Scan to pay the package price and then enter the UTR number.</Text>
-                    <TextInput
-                        placeholder="Enter UTR no."
-                        placeholderTextColor="#ddd"
-                        value={utr}
-                        onChangeText={(text) => setUtr(text)}
-                        style={styles.input}
-                    />
-                    <TouchableOpacity
-                        onPress={handleConfirmPayment}
-                        style={styles.button}
-                        disabled={loading}
-                    >
-                        {loading ? (
-                            <ActivityIndicator color="#fff" />
-                        ) : (
-                            <Text style={styles.buttonText}>Confirm Your Payment</Text>
-                        )}
-                    </TouchableOpacity>
-                </>
-            )}
+  useEffect(() => {
+    generateQRCode();
+  }, [upiId, username, amount]);
+
+  const checkPaymentStatus = async () => {
+    try {
+      const response = await axios.get(`https://your-backend-api.com/check-payment-status?transactionId=${transactionId}`);
+      if (response.data && response.data.status === 'SUCCESS') {
+        setBalance(response.data.newBalance); // Update balance on success
+        Alert.alert('Success', 'Payment received successfully!');
+      } else {
+        Alert.alert('Payment Pending', 'Your payment is still being processed. Please check again later.');
+      }
+    } catch (error) {
+      console.error('Error checking payment status:', error);
+      Alert.alert('Error', 'Failed to check payment status. Please try again.');
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.label}>Enter Deposit Amount: {amount}</Text>
+      <TextInput
+        placeholder="Enter your UPI ID"
+        value={upiId}
+        onChangeText={setUpiId}
+        style={styles.input}
+      />
+      <TextInput
+        placeholder="Enter your Username"
+        value={username}
+        onChangeText={setUsername}
+        style={styles.input}
+      />
+      <TextInput
+        placeholder="Enter your Account Number"
+        value={accountNumber}
+        onChangeText={setAccountNumber}
+        style={styles.input}
+      />
+      <TextInput
+        placeholder="Enter your User ID"
+        value={userId}
+        onChangeText={setUserId}
+        style={styles.input}
+      />
+
+<Button title={loading ? 'Processing...' : 'Deposit via UPI'} onPress={handleDeposit} disabled={loading} />
+{qrValue ? (
+        <View style={styles.qrContainer}>
+         <QRCode value={qrValue} size={200} />
+
         </View>
+      ) : null}
+      
+      <Button title="Check Payment Status" onPress={checkPaymentStatus} />
 
-
-    );
+<Text style={styles.balance}>Current Balance: {balance} INR</Text>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        alignItems: 'center',
-        backgroundColor: '#021324',
-        paddingVertical: 30,
-        paddingHorizontal: 20,
-        height: "100%"
-    },
-    head: {
-        fontSize: 22,
-        fontFamily: "Poppins-Regular",
-        textAlign: 'center',
-        color: "#fff",
-        marginVertical: 20,
-
-    },
-    qrContainer: {
-        marginBottom: 20,
-        alignItems: 'center',
-        width: '90%',
-        marginTop: 20
-    },
-    input: {
-        padding: 10,
-        width: '80%',
-        marginBottom: 20,
-        borderRadius: 4,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        color: 'white',  // Text color
-    },
-    button: {
-        padding: 20,
-        backgroundColor: '#ffd700',  // Button color
-        borderRadius: 4,
-        alignItems: 'center',
-        width: '80%',
-    },
-    buttonText: {
-        color: '#fff',
-    },
-    confirmation: {
-        padding: 20,
-        backgroundColor: '#dff0d8',
-        borderRadius: 8,
-    },
-    successText: {
-        color: 'black',
-        textAlign: 'center',
-    },
-    amountText: {
-        color: 'white',  // Text color
-        fontSize: 18,
-        fontFamily: "Poppins-Regular",
-        marginVertical: 10,
-
-    },
-    infoText: {
-        color: '#ddd',  // Slightly lighter text color for additional information
-        textAlign: 'center',
-        marginBottom: 10,
-        fontSize: 14,
-        fontFamily: "Poppins-Regular"
-    },
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#fff',
+  },
+  label: {
+    marginBottom: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    padding: 10,
+    marginBottom: 20,
+    borderRadius: 5,
+  },
+  qrContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  balance: {
+    marginTop: 20,
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
 });
 
 export default UpiPayment;

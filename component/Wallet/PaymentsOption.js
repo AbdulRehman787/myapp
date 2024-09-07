@@ -29,8 +29,8 @@ const PaymentOptions = () => {
             <TouchableOpacity style={styles.button} onPress={() => handlePaymentMethod('Google Pay')}>
                 <Text style={styles.buttonText}>Google Pay</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => handlePaymentMethod('Chinon Pay')}>
-                <Text style={styles.buttonText}>Chinon Pay</Text>
+            <TouchableOpacity style={styles.button} onPress={() => handlePaymentMethod('Phone Pay')}>
+                <Text style={styles.buttonText}>Phone Pay</Text>
             </TouchableOpacity>
         </View>
     );

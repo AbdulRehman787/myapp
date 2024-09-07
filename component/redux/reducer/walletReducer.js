@@ -1,18 +1,24 @@
-import { SET_BALANCE, SET_TRANSACTIONS } from '../actions/walletActions';
-
+// reducers/walletReducer.js
 const initialState = {
-  balance: 0.0,
+  balance: 0,
   transactions: [],
+  loading: false,
+  error: null,
 };
 
 const walletReducer = (state = initialState, action) => {
   switch (action.type) {
-    case SET_BALANCE:
-      return { ...state, balance: action.payload };
-    case SET_TRANSACTIONS:
-      return { ...state, transactions: action.payload };
-    default:
-      return state;
+      case 'GET_BALANCE_SUCCESS':
+          return { ...state, balance: action.payload.balance, loading: false };
+      case 'DEPOSIT_SUCCESS':
+      case 'WITHDRAW_SUCCESS':
+          return { ...state, loading: false };
+      case 'GET_BALANCE_FAILURE':
+      case 'DEPOSIT_FAILURE':
+      case 'WITHDRAW_FAILURE':
+          return { ...state, error: action.payload.error, loading: false };
+      default:
+          return state;
   }
 };
 
