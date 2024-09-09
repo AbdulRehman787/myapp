@@ -6,11 +6,15 @@ buildscript {
         targetSdkVersion = 34
         ndkVersion = "21.4.7075529"
         kotlinVersion = "1.9.24"
-          cmakeVersion = "3.10.2"
+        cmakeVersion = "3.10.2"
     }
     repositories {
         google()
-        mavenCentral()
+
+        mavenCentral{
+            url  "https://phonepe.mycloudrepo.io/public/repositories/phonepe-intentsdk-android"
+            url "https://artifactory.paytm.in/libs-release-local"
+        }
     }
     dependencies {
         classpath("com.android.tools.build:gradle")

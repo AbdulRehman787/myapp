@@ -49,6 +49,8 @@ import DemoAccount from '../Wallet/DemoAccount'
 import RealAccount from '../Wallet/RealAccount'
 import UpiPayment from '../Wallet/UpiPayment'
 import PhonePay from '../Wallet/PhonePay'
+import DepositConfirmation from '../Wallet/DepositConfirmation'
+import PaymentQRScreen from '../Wallet/PaymentQRScreen'
 const Stack = createNativeStackNavigator()
 const AuthNavigation = () => {
   return (
@@ -102,6 +104,8 @@ const AuthNavigation = () => {
         <Stack.Screen name='Card Payment' component={CardPayment} />
         <Stack.Screen name='UpiPayment' component={UpiPayment} />
         <Stack.Screen name='Phone Pay' component={PhonePay} />
+        <Stack.Screen name='DepositConfirmation' component={DepositConfirmation} />
+        <Stack.Screen name='PaymentQRScreen' component={PaymentQRScreen} />
      
       </Stack.Navigator>
       

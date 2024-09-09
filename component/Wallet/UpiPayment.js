@@ -11,9 +11,9 @@ const UpiPayment = ({ navigation, route }) => {
   const [qrValue, setQrValue] = useState('');
   const [balance, setBalance] = useState(0); // State to store the balance
 
-  const [username, setUsername] = useState(''); // New state for username
-  const [accountNumber, setAccountNumber] = useState(''); // New state for account number
-  const [userId, setUserId] = useState(''); // New state for user ID
+  const [username, setUsername] = useState(''); 
+  const [accountNumber, setAccountNumber] = useState(''); 
+  const [userId, setUserId] = useState(''); 
 
   const { amount } = route.params;
 
@@ -60,7 +60,7 @@ const UpiPayment = ({ navigation, route }) => {
 
   const checkPaymentStatus = async () => {
     try {
-      const response = await axios.get(`https://your-backend-api.com/check-payment-status?transactionId=${transactionId}`);
+      const response = await axios.get(`https://http://localhost:3001/check-payment-status?transactionId=${transactionId}`);
       if (response.data && response.data.status === 'SUCCESS') {
         setBalance(response.data.newBalance); // Update balance on success
         Alert.alert('Success', 'Payment received successfully!');
@@ -108,7 +108,7 @@ const UpiPayment = ({ navigation, route }) => {
 
         </View>
       ) : null}
-      
+
       <Button title="Check Payment Status" onPress={checkPaymentStatus} />
 
 <Text style={styles.balance}>Current Balance: {balance} INR</Text>
