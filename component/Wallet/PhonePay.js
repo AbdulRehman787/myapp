@@ -70,138 +70,212 @@
 // const styles = StyleSheet.create({})
 
 
-import React, { useState,useEffect } from 'react';
-import { View, Text, TextInput, Button, Alert, Image, StyleSheet, Linking } from 'react-native';
-import PhonePeSdk from "react-native-phonepe-pg"
+// import React, { useState,useEffect } from 'react';
+// import { View, Text, TextInput, Button, Alert, Image, StyleSheet, Linking } from 'react-native';
+// import PhonePeSdk from "react-native-phonepe-pg"
 
-import { sha256 } from 'react-native-sha256';
-import Base64 from 'react-native-quick-base64'
-const PhonePay = ({ route }) => {
-  const phonePePaymentLink = 'https://www.phonepe.com/paylink'; // Replace with your generated payment link
-  const { amount } = route.params;
-  const [number, setNumber] = useState('')
+// import { sha256 } from 'react-native-sha256';
+// import Base64 from 'react-native-quick-base64'
+// const PhonePay = ({ route }) => {
+//   const phonePePaymentLink = 'https://www.phonepe.com/paylink'; // Replace with your generated payment link
+//   const { amount } = route.params;
+//   const [number, setNumber] = useState('')
 
 
 
-  const handlePayment = () => {
-    if (!amount) {
-      Alert.alert('Error', 'Please enter an amount.');
-      return;
+//   const handlePayment = () => {
+//     if (!amount) {
+//       Alert.alert('Error', 'Please enter an amount.');
+//       return;
+//     }
+
+//     // Open PhonePe app with the payment link (if available)
+//     Linking.openURL(phonePePaymentLink)
+//       .catch(err => {
+//         console.error('Failed to open PhonePe link:', err);
+//         Alert.alert('Error', 'Unable to open PhonePe link.');
+//       });
+//   };
+
+//   const [environment, setEnvironment] = useState('SANDBOX')
+//   const [merchantId, setMerchantId] = useState('PGTESTPAYUAT86')
+//   const [appId, setAppID] = useState(null)
+  
+//   const [enabbleLogging, setEnableLogging] = useState(true)
+
+
+  
+
+
+
+//   const generateTransactionId = () => {
+//     const timeStamp = Date.now();
+//     const random = Math.floor(Math.random() * 1000000);
+//     const merchantPerfix = 'T';
+//     return `${merchantPerfix}${timeStamp}${random}`
+//   }
+
+
+//   const submithandler = () => {
+
+//     PhonePeSdk.init(environment, merchantId, appId, enabbleLogging)
+//       .then(res => {
+//         const requestBody = {
+//           merchantId: merchantId,
+//           merchantTransactionId: generateTransactionId(),
+//           merchantUserId: "",
+//           amount: amount,
+//           mobileNumber: number,
+//           callBackURL: "",
+//           paymentInstruments: {
+//             type: "PAY_PAGE"
+//           }
+//         }
+//         const salt_key = "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399";
+//         const salt_Index = 1;
+//         const payload = JSON.stringify(requestBody)
+//         const payload_main = Base64(payload)
+//         const string = payload_main + "/pg/v1/pay" + salt_key;
+//         const check_sum = sha256(string) + "###" + salt_Index;
+    
+//         PhonePeSdk.startTransaction(
+//           payload,
+//           check_sum,
+//           null,
+//           null
+//         ).then(res => {
+// console.log(res);
+
+//         })
+//           .catch(err => {
+//             console.log(err);
+
+//           })
+//       })
+//       .catch(err => {
+// console.log(err);
+
+//       })
+//   }
+//   return (
+//     <View style={styles.container}>
+//       <Text style={styles.label}>Your deposit  Amount {amount} </Text>
+
+
+//       {/* Static QR Code Image */}
+//       <Text style={styles.qrLabel}>Scan QR Code to Pay:</Text>
+//       <Image
+//         source={{ uri: 'https://example.com/static-qr-code.png' }} // Replace with your static QR code URL
+//         style={styles.qrCode}
+//       />
+//       <TextInput style={styles.input} placeholder='enter Mobile number' value={number} onChangeText={setNumber} keyboardType='number' />
+//       {/* Button to Initiate Payment */}
+//       <Button title="Pay with PhonePe Link" onPress={() => submithandler()} />
+//     </View>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     padding: 20,
+//     backgroundColor: '#fff',
+//   },
+//   label: {
+//     marginBottom: 10,
+//     fontSize: 16,
+//     fontWeight: 'bold',
+//   },
+//   input: {
+//     borderWidth: 1,
+//     borderColor: '#ddd',
+//     padding: 10,
+//     marginBottom: 20,
+//     borderRadius: 5,
+//   },
+//   qrLabel: {
+//     marginTop: 20,
+//     fontSize: 16,
+//     fontWeight: 'bold',
+//   },
+//   qrCode: {
+//     width: 200,
+//     height: 200,
+//     marginVertical: 20,
+//   },
+// });
+
+// export default PhonePay;
+
+
+import React from 'react';
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  Platform,
+  NativeModules,
+  NativeEventEmitter,
+  StyleSheet,
+} from 'react-native';
+
+const ReactPhonePe =
+  Platform.OS === 'ios'
+    ? null
+    : new NativeEventEmitter(NativeModules.ReactPhonePe);
+
+const PhonePay = () => {
+  async function getUpiListToRN() {
+    if (Platform.OS == 'android') {
+      const upis = await NativeModules.ReactPhonePe.getUpiListToRN();
+      console.log('--- getUpiListToRN', upis);
+    } else {
     }
-
-    // Open PhonePe app with the payment link (if available)
-    Linking.openURL(phonePePaymentLink)
-      .catch(err => {
-        console.error('Failed to open PhonePe link:', err);
-        Alert.alert('Error', 'Unable to open PhonePe link.');
-      });
-  };
-
-  const [environment, setEnvironment] = useState('SANDBOX')
-  const [merchantId, setMerchantId] = useState('PGTESTPAYUAT86')
-  const [appId, setAppID] = useState(null)
-  
-  const [enabbleLogging, setEnableLogging] = useState(true)
-
-
-  
-
-
-
-  const generateTransactionId = () => {
-    const timeStamp = Date.now();
-    const random = Math.floor(Math.random() * 1000000);
-    const merchantPerfix = 'T';
-    return `${merchantPerfix}${timeStamp}${random}`
   }
 
-
-  const submithandler = () => {
-
-    PhonePeSdk.init(environment, merchantId, appId, enabbleLogging)
-      .then(res => {
-        const requestBody = {
-          merchantId: merchantId,
-          merchantTransactionId: generateTransactionId(),
-          merchantUserId: "",
-          amount: amount,
-          mobileNumber: number,
-          callBackURL: "",
-          paymentInstruments: {
-            type: "PAY_PAGE"
-          }
-        }
-        const salt_key = "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399";
-        const salt_Index = 1;
-        const payload = JSON.stringify(requestBody)
-        const payload_main = Base64(payload)
-        const string = payload_main + "/pg/v1/pay" + salt_key;
-        const check_sum = sha256(string) + "###" + salt_Index;
-    
-        PhonePeSdk.startTransaction(
-          payload,
-          check_sum,
-          null,
-          null
-        ).then(res => {
-console.log(res);
-
-        })
-          .catch(err => {
-            console.log(err);
-
-          })
-      })
-      .catch(err => {
-console.log(err);
-
-      })
+  function startPhonePe() {
+    const URL =
+      'upi://pay?pa=PGTESTPAYUAT68@ybl&pn=MERCHANT&am=1&mam=1&tr=f304fea0a62644f5907f1072734741&tn=Payment%20for%20f304fea0a62644f5907f1072734741&mc=5311&mode=04&purpose=00&utm_campaign=B2B_PG&utm_medium=PGTESTPAYUAT68&utm_source=f304fea0a62644f5907f1072734741&mcbs=';
+    if (Platform.OS === 'android') {
+      NativeModules.ReactPhonePe.startReactPhonePe(URL, 'com.phonepe.PhonePay');
+    } else {
+    }
   }
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Your deposit  Amount {amount} </Text>
-
-
-      {/* Static QR Code Image */}
-      <Text style={styles.qrLabel}>Scan QR Code to Pay:</Text>
-      <Image
-        source={{ uri: 'https://example.com/static-qr-code.png' }} // Replace with your static QR code URL
-        style={styles.qrCode}
-      />
-      <TextInput style={styles.input} placeholder='enter Mobile number' value={number} onChangeText={setNumber} keyboardType='number' />
-      {/* Button to Initiate Payment */}
-      <Button title="Pay with PhonePe Link" onPress={() => submithandler()} />
+    <View style={styles.rootContainer}>
+      <TouchableOpacity
+        style={styles.actionButton}
+        activeOpacity={0.7}
+        onPress={() => getUpiListToRN()}>
+        <Text style={styles.actionButtonLabel}>Get UPI App List</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.actionButton, {marginTop: 12}]}
+        activeOpacity={0.7}
+        onPress={() => startPhonePe()}>
+        <Text style={styles.actionButtonLabel}>Pay via PhonePe</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  rootContainer: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
   },
-  label: {
-    marginBottom: 10,
-    fontSize: 16,
-    fontWeight: 'bold',
+  actionButton: {
+    height: 45,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'black',
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 10,
-    marginBottom: 20,
-    borderRadius: 5,
-  },
-  qrLabel: {
-    marginTop: 20,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  qrCode: {
-    width: 200,
-    height: 200,
-    marginVertical: 20,
+  actionButtonLabel: {
+    color: 'white',
   },
 });
 

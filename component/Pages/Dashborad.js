@@ -1,12 +1,11 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity, SafeAreaView, ScrollView, Dimensions } from 'react-native'
 import React, { useEffect,useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { useNavigation } from '@react-navigation/native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useSelector, useDispatch } from 'react-redux'
 import { fetchTransactions,fetchWalletBalance } from '../redux/actions/WalletAction'
 import axios from 'axios'
-
+import Footer from '../Games/Footer'
 const { width, height } = Dimensions.get('window');
 
 
@@ -63,11 +62,14 @@ const Dashboard = () => {
   const transactions = useSelector((state) => state.transactions.transactions);
 
 
-  const [data, setData] = useState([]);
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [newData, setNewData] = useState('')
   const [error, setError] = useState('')
+  const [data1 , setData1] = useState([])
+const [walletBalance,setWalletBalance] = useState('')
+const [userName,setUserName] = useState('')
+const [userId,setUserId] = useState('')
   useEffect(() => {
     getData();
   }, []);
@@ -90,8 +92,6 @@ const Dashboard = () => {
       .then(email => {
         if (email !== null) {
           setEmail(email);
-       
-
         }
       })
       .catch(error => {
@@ -116,15 +116,35 @@ const Dashboard = () => {
   }, [dispatch]);
 
 
+  
+  const data =()=>{
+    axios.get('https://bulldog-solid-bream.ngrok-free.app/signup')
+    .then(res=> setData1(res.data))
+    .catch(err=> console.log(err))
+  }
+
+  useEffect(()=>{
+    data()
+  },[])
+const filterData=data1.filter(id=>id.email === email)
+
+useEffect(() => {
+  if (filterData.length > 0) {
+    const user = filterData[0]; // Assuming the filter will return only one user
+   setWalletBalance(user.wallet_balance); // Update user_id state
+   setUserName(user.name)
+   setUserId(user.user_id)
+  }
+}, [filterData]);
+
+
   return (
     <>
-    <ScrollView>
       <View style={styles.container}>
+   
         <View style={styles.cont1}>
           <TouchableOpacity style={styles.cont1img} onPress={()=> navigation.navigate('My Profile')}>
-        
-              <Text style={styles.cont1imgtext}>{newData.name}</Text>
-          
+              <Text style={styles.cont1imgtext}>{userName.slice(0,2)}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={()=> navigation.navigate('Notification')}>
             <Image source={require('../../assets/images/notification.jpg')} style={styles.notificationImg} />
@@ -134,13 +154,14 @@ const Dashboard = () => {
         <View style={styles.cont2}>
           <View>
             <Text style={styles.wallethead}>Wallet OverView</Text>
-            <Text style={styles.walletprice}>${balance}</Text>
+            <Text style={styles.walletprice}>{walletBalance}</Text>
           </View>
           <View>
-            <TouchableOpacity style={styles.btn} onPress={()=>navigation.navigate('Deposit')}><Text style={styles.btntext}>Deposit</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.btn} onPress={()=>navigation.navigate('Deposit',{user_id:userId})}><Text style={styles.btntext}>Deposit</Text></TouchableOpacity>
           </View>
         </View>
 
+<ScrollView>
         <View style={styles.cont3}>
           <View style={styles.cont3_1}>
             {imgdata.map((curelem,index)=>{
@@ -153,7 +174,7 @@ const Dashboard = () => {
           
           </View>
           <View>
-            <TouchableOpacity onPress={() => navigation.navigate('AllGames')}>
+            <TouchableOpacity onPress={() => navigation.navigate('AllGames',{userId:userId})}>
               <Text style={styles.seeallgame}>See All</Text>
             </TouchableOpacity>
           </View>
@@ -164,7 +185,7 @@ const Dashboard = () => {
             <Text style={styles.wallethead}>Number Lottery</Text>
             <Text style={styles.mainhead}>Win {"\n"}$10000 </Text>
             <Text style={styles.desc}>of prices guranted every month</Text>
-            <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('Lottery')}><Text style={styles.btntext}>PlayNow</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('Lotteries')}><Text style={styles.btntext}>PlayNow</Text></TouchableOpacity>
           </View>
           <View>
             <Image source={require('../../assets/images/coin.png')} style={styles.coinimg} />
@@ -193,9 +214,13 @@ const Dashboard = () => {
             })}
           </View>
         </View>
+        </ScrollView>
+              
+  
+    <Footer />
       </View>
       
-    </ScrollView>
+
     </>
   )
 }
@@ -227,6 +252,7 @@ const styles = StyleSheet.create({
     color: "#ffd700",
     fontSize: width * 0.035,
     fontFamily: 'Poppins-Regular',
+    textTransform:"capitalize"
   },
   notificationImg: {
     width: 30,
@@ -272,6 +298,7 @@ const styles = StyleSheet.create({
     borderColor: "#ffd700",
     borderRadius: 10,
     marginVertical: 10,
+    marginBottom: 40,
   },
   cont3_1: {
     justifyContent: 'space-between',
@@ -329,4 +356,3 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
 })
-

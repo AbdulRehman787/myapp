@@ -3,13 +3,15 @@ import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput, Animated, A
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const HeadandTail = () => {
+const HeadandTail = ({ route }) => {
+  const { wallet_Balance } = route.params;
   const [selectedSide, setSelectedSide] = useState(null);
   const [bidAmount, setBidAmount] = useState('');
-  const [animationValue] = useState(new Animated.Value(0)); // Animation value for flipping
+  const [animationValue] = useState(new Animated.Value(0));
   const [flippedSide, setFlippedSide] = useState(null);
   const [result, setResult] = useState('');
   const [data, setData] = useState([]);
+  const [walletBalance, setWalletBalance] = useState(wallet_Balance);
   const [email, setEmail] = useState('');
   const [user_id, setUserId] = useState('');
   const [username, setUserName] = useState('');
@@ -25,7 +27,7 @@ const HeadandTail = () => {
 
   useEffect(() => {
     const getData = () => {
-      axios.get('https://mint-legible-coyote.ngrok-free.app/signup')
+      axios.get('https://bulldog-solid-bream.ngrok-free.app/signup')
         .then(res => setData(res.data))
         .catch(err => console.log(err));
     };
@@ -46,12 +48,24 @@ const HeadandTail = () => {
 
   useEffect(() => {
     if (filterData.length > 0) {
-      const user = filterData[0]; // Assuming the filter will return only one user
-      setUserId(user.user_id); // Update user_id state
-      setUserName(user.name); // Update username state
-      setUserEmail(user.email); // Update userEmail state
+      const user = filterData[0];
+      setUserId(user.user_id);
+      setUserName(user.name);
+      setUserEmail(user.email);
     }
   }, [filterData]);
+
+  const updateWalletBalance = async (newBalance) => {
+    try {
+      await axios.post('https://bulldog-solid-bream.ngrok-free.app/wallet/update', {
+        userId: user_id,
+        newBalance: newBalance,
+      });
+      setWalletBalance(newBalance); // Update the wallet balance in state
+    } catch (err) {
+      console.log('Error updating wallet balance:', err);
+    }
+  };
 
   const handleFlip = () => {
     if (selectedSide === null) {
@@ -59,8 +73,21 @@ const HeadandTail = () => {
       return;
     }
 
-    // Reset the result before starting the animation
-    setResult('');
+    if (bidAmount === '' || parseFloat(bidAmount) <= 0) {
+      Alert.alert("Please enter a valid bet amount");
+      return;
+    }
+
+    const betAmount = parseFloat(bidAmount);
+    if (betAmount > walletBalance) {
+      Alert.alert("Insufficient wallet balance");
+      return;
+    }
+
+    // Deduct the bet amount from the wallet balance before flipping
+    const newWalletBalance = walletBalance - betAmount;
+    setWalletBalance(newWalletBalance); // Update local wallet balance
+    updateWalletBalance(newWalletBalance); // Update on server
 
     // Start the flipping animation
     Animated.timing(animationValue, {
@@ -68,25 +95,24 @@ const HeadandTail = () => {
       duration: 2000, // 2 seconds flip
       useNativeDriver: true,
     }).start(() => {
-      // Reset animation after completion
       animationValue.setValue(0);
-      // Simulate a random coin flip outcome
       const outcome = Math.random() < 0.5 ? 'Head' : 'Tail';
       setFlippedSide(outcome);
 
-      // Check if the user won
       if (selectedSide === outcome) {
+        const winnings = betAmount * 2; // Calculate winnings (double the bet)
+        const updatedBalance = newWalletBalance + winnings;
         setResult(`You Win!`);
+        setWalletBalance(updatedBalance); // Update local wallet balance
+        updateWalletBalance(updatedBalance); // Update on server
       } else {
         setResult(`You Lose!`);
       }
 
-      // Reset the selection
       setSelectedSide(null);
     });
   };
 
-  // UseEffect to post data after the result state has been updated
   useEffect(() => {
     if (result) {
       postData();
@@ -99,11 +125,11 @@ const HeadandTail = () => {
       user_name: username,
       user_email: userEmail,
       game_name: 'Head & Tail',
-      game_status: result, // Use the result state to post
-      bet_price: bidAmount
+      game_status: result,
+      bet_price: bidAmount,
     };
 
-    axios.post('https://mint-legible-coyote.ngrok-free.app/games/data', data1)
+    axios.post('https://bulldog-solid-bream.ngrok-free.app/games/data', data1)
       .then(res => console.log(res))
       .catch(err => console.log('Error while posting data:', err));
   };
@@ -111,14 +137,15 @@ const HeadandTail = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Head or Tail</Text>
+      <Text style={styles.noteText}>Wallet Balance: {walletBalance}</Text>
 
       <View style={styles.imageContainer}>
         <Animated.View style={{ transform: [{ rotateY: animatedRotation }] }}>
           <Image
             source={
               flippedSide === 'Head'
-                ? require('../../assets/images/head.png') // Ensure this path is correct
-                : require('../../assets/images/tail.png') // Ensure this path is correct
+                ? require('../../assets/images/head.png')
+                : require('../../assets/images/tail.png')
             }
             style={styles.image}
           />
@@ -140,8 +167,6 @@ const HeadandTail = () => {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.noteText}>Select either Head or Tail and press to confirm.</Text>
-
       <TextInput
         placeholder="Enter amount"
         value={bidAmount}
@@ -155,9 +180,6 @@ const HeadandTail = () => {
         <Text style={styles.addButtonText}>Add Bet</Text>
       </TouchableOpacity>
 
-      <Text style={styles.noteText}>Minimum: 3 | Maximum: 1M | Win Amount: 100%</Text>
-      
-      {/* Display result only if there is a result */}
       {result ? <Text style={styles.noteText}>{result}</Text> : null}
 
       <View style={styles.navBar}>
@@ -178,7 +200,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 34,
     color: 'white',
     fontFamily: 'Poppins-Regular',
     marginTop: 40,
@@ -223,11 +245,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   noteText: {
-    fontSize: 14,
+    fontSize: 18,
     color: 'white',
     fontFamily: 'Poppins-Regular',
     textAlign: 'center',
-    marginBottom: 30,
+   marginVertical: 30,
   },
   navBar: {
     flexDirection: 'row',
@@ -251,7 +273,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     padding: 10,
     borderRadius: 8,
-    width: '48%',
+    width: '100%',
     marginBottom: 20,
     textAlign: 'center',
   },

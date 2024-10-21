@@ -64,7 +64,7 @@ const EditProfile = () => {
       
 else{
   axios
-  .post('https://mint-legible-coyote.ngrok-free.app/update-profile', data)
+  .post('https://bulldog-solid-bream.ngrok-free.app/update-profile', data)
   .then(response => {
     if (response.data.success) {
       Alert.alert('Profile updated successfully');
@@ -131,6 +131,7 @@ catch(err){
               textInputStyle={styles.phoneInputText}
               codeTextStyle={styles.phoneInputCodeText}
               flagButtonStyle={styles.phoneInputFlag}
+              
             />
       <Text style={styles.head1}>Country Name</Text>
 

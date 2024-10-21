@@ -1,9 +1,10 @@
 import axios from 'axios';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,useRef} from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Image, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const RockPaper = () => {
+import Footer from './Footer';
+const RockPaper = ({route}) => {
+  const {wallet_Balance } = route.params;
   const [selectedChoice, setSelectedChoice] = useState('');
   const [betAmount, setBetAmount] = useState('');
   const [result, setResult] = useState('');
@@ -16,6 +17,7 @@ const RockPaper = () => {
   const [username, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [bidAmount,setBidAmount] = useState('')
+  const [walletBalance, setWalletBalance] = useState(wallet_Balance);
   const choices = ['Rock', 'Paper', 'Scissors'];
   const intervalid = useRef(null); // Use useRef for intervalid
   
@@ -36,9 +38,21 @@ const RockPaper = () => {
     }
   };
 
+  const updateWalletBalance = async (newBalance) => {
+    try {
+      await axios.post('https://bulldog-solid-bream.ngrok-free.app/wallet/update', {
+        userId: user_id,
+        newBalance: newBalance,
+      });
+      setWalletBalance(newBalance); // Update the wallet balance in state
+    } catch (err) {
+      console.log('Error updating wallet balance:', err);
+    }
+  };
+
   useEffect(() => {
     const getData = () => {
-      axios.get('https://mint-legible-coyote.ngrok-free.app/signup')
+      axios.get('https://bulldog-solid-bream.ngrok-free.app/signup')
         .then(res => setData(res.data))
         .catch(err => console.log(err));
     };
@@ -84,11 +98,10 @@ const RockPaper = () => {
     bet_price: bidAmount
   };
   const postData = () => {
-    axios.post('https://mint-legible-coyote.ngrok-free.app/games/data', data1)
+    axios.post('https://bulldog-solid-bream.ngrok-free.app/games/data', data1)
       .then(res => console.log("Data will be post"))
       .catch(err => console.log('Error while posting data:', err));
   };
-
 
 
   const handleAddBet = () => {
@@ -96,19 +109,31 @@ const RockPaper = () => {
       Alert.alert('Error', 'Please select a choice and enter a bet amount.');
       return;
     }
-
-    // Ensure betAmount is a valid number
-    if (isNaN(parseFloat(bidAmount)) || parseFloat(bidAmount) <= 0) {
+  
+    const betAmountNumber = parseFloat(bidAmount);
+  
+    // Ensure betAmount is a valid number and user has enough balance
+    if (isNaN(betAmountNumber) || betAmountNumber <= 0) {
       Alert.alert('Error', 'Please enter a valid numeric bet amount.');
       return;
     }
-
+  
+    if (walletBalance < betAmountNumber) {
+      Alert.alert('Error', 'Insufficient wallet balance.');
+      return;
+    }
+  
+    // Subtract bet amount from wallet balance
+    const updatedBalance = walletBalance - betAmountNumber;
+    setWalletBalance(updatedBalance);
+    updateWalletBalance(updatedBalance);
+  
     // Start countdown
     setIsCountingDown(true);
     setCountdown(5);
-
+  
     const computerChoice = choices[Math.floor(Math.random() * choices.length)];
-
+  
     intervalid.current = setInterval(() => {
       setCountdown((prevCountdown) => {
         if (prevCountdown <= 1) {
@@ -120,24 +145,26 @@ const RockPaper = () => {
         return prevCountdown - 1;
       });
     }, 1000);
-
+  
     // Reset bet and choice
     setBetAmount('');
     setSelectedChoice('');
   };
-
+  
   const determineResult = (computerChoice) => {
-    const betAmountNumber = parseFloat(bidAmount); // Safely parse betAmount
-
+    const betAmountNumber = parseFloat(bidAmount);
+  
     if (selectedChoice === computerChoice) {
-      setUserBalance((prevBalance) => prevBalance + betAmountNumber);
       setResult('You Win!');
+      const winnings = betAmountNumber;
+      const updatedBalance = walletBalance + winnings;
+      setWalletBalance(updatedBalance); // Update wallet balance
+      updateWalletBalance(updatedBalance); // Update balance on backend
     } else {
-      setUserBalance((prevBalance) => prevBalance - betAmountNumber);
       setResult('You Lose!');
+      // Balance has already been updated in handleAddBet, no need to subtract again
     }
   };
-
   useEffect(() => {
     return () => clearInterval(intervalid.current); // Clean up interval on component unmount
   }, []);
@@ -145,7 +172,7 @@ const RockPaper = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Rock Paper Scissors</Text>
-
+<Text style={styles.balanceText}>Wallet Balance {walletBalance}</Text>
       <View style={styles.imageContainer}>
         {selectedChoice ? (
           <>
@@ -191,16 +218,10 @@ const RockPaper = () => {
         result ? <Text style={styles.resultText}>{result}</Text> : null
       )}
 
-      <Text style={styles.balanceText}>Balance: ${userBalance.toFixed(2)}</Text>
-
+    
       <Text style={styles.noteText}>Minimum: 3 | Maximum: 1M | Win Amount 100%</Text>
 
-      <View style={styles.navBar}>
-        <Text style={styles.navText}>Home</Text>
-        <Text style={styles.navText}>Lottery</Text>
-        <Text style={styles.navText}>Wallet</Text>
-        <Text style={styles.navText}>Setting</Text>
-      </View>
+     <Footer />
     </View>
   );
 };
@@ -301,14 +322,20 @@ const styles = StyleSheet.create({
   },
   navBar: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
     position: 'absolute',
-    bottom: 20,
+    bottom: 0,
+    width: '110%',
+    backgroundColor: '#ffd700',
+    padding: 10,
+    borderTopLeftRadius: 15,
+    borderTopRightRadius:15,
+    
+
   },
   navText: {
     color: 'white',
     fontFamily: 'Poppins-Regular',
+
   },
 });
 

@@ -1,24 +1,65 @@
 import { StyleSheet, Text, TouchableOpacity, View, Modal, TextInput } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import Footer from '../Games/Footer';
 const Deposit = () => {
     const navigation = useNavigation();
+    const [data, setData] = useState([])
+
+    const [email, setEmail] = useState('');
+    const [user_id, setUserId] = useState('');
+
+    const [walletBalance, setWalletBalance] = useState('')
+
+
+    useEffect(() => {
+        const getData = () => {
+            axios.get('https://bulldog-solid-bream.ngrok-free.app/signup')
+                .then(res => setData(res.data))
+                .catch(err => console.log(err))
+        }
+        getData()
+
+    }, [])
+
+    useEffect(() => {
+        AsyncStorage.getItem('emailId')
+            .then(email => {
+                if (email !== null) {
+                    setEmail(email)
+                }
+            }
+            )
+            .catch(err => console.log(err))
+    }, [])
+
+    const filterData = data.filter((item) => item.email === email)
+
+    useEffect(() => {
+        if (filterData.length > 0) {
+            const user = filterData[0];
+            setUserId(user.user_id)
+            setWalletBalance(user.wallet_balance)
+        }
+    }, [filterData])
 
     return (
         <View style={styles.container}>
             <Text style={styles.head}>Deposit</Text>
             <View style={styles.btncont}>
-                <TouchableOpacity style={styles.btn} onPress={()=>navigation.navigate('DepositPage')}>
+                <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('DepositPage')}>
                     <Text style={styles.btntext}>Deposit</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.btn}>
                     <Text style={styles.btntext}>Withdraw</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.btn}>
+                <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('TransferBalance', { user_id: user_id,walletBalance:walletBalance })}>
                     <Text style={styles.btntext}>Transfer</Text>
                 </TouchableOpacity>
             </View>
-
+            <Footer />
         </View>
     );
 };

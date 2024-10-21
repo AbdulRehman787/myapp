@@ -1,15 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Text,
   View,
-  Image,
   StyleSheet,
   TouchableOpacity,
-  TextInput
+  TextInput,
+  Animated,
+  ScrollView
 } from 'react-native';
+import PushNotification from 'react-native-push-notification';
 
+// Dice images
 const diceImages = {
   1: require('../../assets/images/1.png'),
   2: require('../../assets/images/2.png'),
@@ -19,91 +22,175 @@ const diceImages = {
   6: require('../../assets/images/6.png'),
 };
 
-const DiceGame = () => {
+// Dice Game Component
+const DiceGame = ({ route }) => {
+  const { wallet_Balance } = route.params;
   const [firstDice, setFirstDice] = useState(2);
   const [secondDice, setSecondDice] = useState(4);
-  const [selectedFirstNumber, setSelectedFirstNumber] = useState('');
-  const [selectedSecondNumber, setSelectedSecondNumber] = useState('');
+  const [selectedNumber, setSelectedNumber] = useState('');
   const [bidAmount, setBidAmount] = useState('');
+  const [betType, setBetType] = useState('over');
   const [result, setResult] = useState('');
   const [error, setError] = useState('');
+  const [walletBalance, setWalletBalance] = useState(wallet_Balance);
+  const [email, setEmail] = useState('');
+  const [user_id, setUserId] = useState('');
+  const [username, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [data , setData] = useState([])
 
-  const [data,setData] = useState([])
-  const [email,setEmail] = useState('')
-  const [user_id,setUserId] = useState('')
-  const [username,setUserName] = useState('')
-  const [userEmail,setUserEmail] = useState('')
 
+
+  // // Push notification setup function
+  // const LocalNotification = () => {
+  //   const key = Date.now().toString();
+  //   // Create a unique notification channel
+    
+  //   PushNotification.createChannel(
+  //     {
+  //       channelId: key,
+  //       channelName: 'Local Notification',
+  //       channelDescription: 'Dice Game notifications',
+  //       importance: 4,
+  //       vibrate: true,
+  //     },
+  //     (created) => console.log(`Channel created: ${created}`)
+  //   );
+
+  //   // Trigger the local notification
+  //   PushNotification.localNotification({
+  //     channelId: key,
+  //     title: 'Dice Game',
+  //     message: result,
+  //   });
+  // };
+
+  
+  // Animation reference
+  const diceRotation = useRef(new Animated.Value(0)).current;
 
   const randomNum = (min = 1, max = 6) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-  const getDiceNum = (prev) => {
-    let num = randomNum();
-    if (prev === num) {
-      return randomNum();
-    }
-    return num;
+  // Dice animation
+  const startDiceRotation = () => {
+    diceRotation.setValue(0);
+    Animated.timing(diceRotation, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
   };
-  const rollDiceOnTap = () => {
-    // Check if the user has selected any number
-    if (!selectedFirstNumber && !selectedSecondNumber) {
+
+  const rollDiceOnTap = async () => {
+    if (!selectedNumber) {
       setError('Please select a number');
       return;
     }
-  
-    // Check if the bid amount is empty
     if (!bidAmount) {
       setError('Please enter your bid amount');
       return;
     }
-  
-    const newFirstDice = getDiceNum(firstDice);
-    const newSecondDice = getDiceNum(secondDice);
-  
+    if (parseFloat(bidAmount) > parseFloat(walletBalance)) {
+      setError('Insufficient balance');
+      return;
+    }
+    if (selectedNumber < 1 || selectedNumber > 6) {
+      setError('Please select a number between 1 and 6');
+      return;
+    }
+
+    const newFirstDice = randomNum();
+    const newSecondDice = randomNum();
     setFirstDice(newFirstDice);
     setSecondDice(newSecondDice);
-  
+
+    // Start dice rotation
+    startDiceRotation();
+
+    const diceSum = newFirstDice + newSecondDice;
     let gameResult = '';
-    if (
-      (parseInt(selectedFirstNumber) === newFirstDice && parseInt(selectedFirstNumber) === newSecondDice) ||
-      (parseInt(selectedSecondNumber) === newFirstDice && parseInt(selectedSecondNumber) === newSecondDice)
-    ) {
-      gameResult = 'You Win!';
+
+    if (betType === 'over' && diceSum > parseInt(selectedNumber)) {
+      gameResult = 'You Win! (Over)';
+
+     
+    } else if (betType === 'under' && diceSum <= parseInt(selectedNumber)) {
+      gameResult = 'You Win! (Under)';
+     
     } else {
       gameResult = 'You Lose!';
+     
     }
-  
-    // Set the result state and use gameResult for posting data
+
+    const updatedBalance = gameResult.includes('Win')
+      ? parseFloat(walletBalance) + parseFloat(bidAmount)
+      : parseFloat(walletBalance) - parseFloat(bidAmount);
+
+    setWalletBalance(updatedBalance.toFixed(2));
+
+    await AsyncStorage.setItem('walletBalance', updatedBalance.toString());
+    updateWalletBalance(updatedBalance);
+
+    postData(gameResult, updatedBalance);
+
     setResult(gameResult);
-    postData(gameResult);
-    setSelectedFirstNumber('');
-    setSelectedSecondNumber('');
+    setSelectedNumber('');
     setBidAmount('');
-    setError(''); // Clear the error after the user makes a valid selection
+    setError('');
   };
 
-  useEffect(()=>{
-    const getData=()=>{
-       axios.get('https://mint-legible-coyote.ngrok-free.app/signup')
-       .then(res=>setData(res.data))
-       .catch(err=> console.log(err))
+  const updateWalletBalance = async (newBalance) => {
+   
+    try {
+      await axios.post('https://bulldog-solid-bream.ngrok-free.app/wallet/update', {
+        userId: user_id,
+        newBalance: newBalance,
+      });
+    } catch (err) {
+      console.log('Error updating wallet balance:', err);
     }
-    getData()
-  },[])
-  
+  };
 
-  useEffect(()=>{
+  useEffect(() => {
+    const getData = () => {
+      axios
+        .get('https://bulldog-solid-bream.ngrok-free.app/signup')
+        .then((res) => setData(res.data))
+        .catch((err) => console.log(err));
+    };
+    getData();
+  }, []);
+
+  useEffect(() => {
     AsyncStorage.getItem('emailId')
-    .then(email =>{
-     if(email !==null)
-       setEmail(email)
-    })
-    .catch(err=>{
-     console.log('Dont Fetch Email')
-    })
-   },[])
+      .then((email) => {
+        if (email !== null) setEmail(email);
+      })
+      .catch((err) => console.log('Error fetching email:', err));
+  }, []);
 
-  const filterData = data.filter((item)=>item.email=== email)
+  const postData = (gameResult, updatedBalance) => {
+    const data = {
+      user_id: user_id,
+      user_name: username,
+      user_email: userEmail,
+      game_name: 'Dice Game',
+      game_status: gameResult,
+      bet_price: bidAmount,
+    
+    };
+    axios
+      .post('https://bulldog-solid-bream.ngrok-free.app/games/data', data)
+      .then((res) => console.log(res))
+      .catch((err) => console.log('Error posting data:', err));
+  };
+
+  const rotateDice = diceRotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
+  const filterData = data.filter((item) => item.email === email);
 
   useEffect(() => {
     if (filterData.length > 0) {
@@ -114,208 +201,187 @@ const DiceGame = () => {
     }
   }, [filterData]);
 
-  
-  
-  const postData = (gameResult) => {
-    const data1 = {
-      user_id: user_id,
-      user_name: username,
-      user_email: userEmail,
-      game_name: 'Dice Game',
-      game_status: gameResult,  // use local variable instead of state
-      bet_price: bidAmount,
-    };
-  
-    axios
-      .post('https://mint-legible-coyote.ngrok-free.app/games/data', data1)
-      .then((res) => console.log(res))
-      .catch((err) => console.log('Error while posting data:', err));
-  };
- 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.title}>Dice Game</Text>
 
-      <View style={styles.container1}>
-        <View style={styles.diceContainer}>
-          <Image
-            style={styles.diceImage}
-            source={diceImages[firstDice]}
-          />
-          <Image
-            style={[
-              styles.diceImage,
-              styles.lite,
-            ]}
-            source={diceImages[secondDice]}
-          />
+      <View style={styles.diceContainer}>
+        <Animated.Image
+          style={[styles.diceImage, { transform: [{ rotate: rotateDice }] }]}
+          source={diceImages[firstDice]}
+        />
+        <Animated.Image
+          style={[styles.diceImage, { transform: [{ rotate: rotateDice }] }, styles.lite]}
+          source={diceImages[secondDice]}
+        />
+      </View>
+
+      <View>
+        <Text style={styles.balanceText}>Current Balance: {walletBalance}</Text>
+
+        <TextInput
+          placeholder="Select a Number (1-6)"
+          value={selectedNumber}
+          onChangeText={setSelectedNumber}
+          keyboardType="phone-pad"
+          placeholderTextColor="#ffd700"
+          style={styles.input}
+        />
+
+        <TextInput
+          placeholder="Enter Amount"
+          value={bidAmount}
+          onChangeText={setBidAmount}
+          keyboardType="numeric"
+          placeholderTextColor="#ffd700"
+          style={styles.input}
+        />
+
+        <View style={styles.betTypeContainer}>
+          <TouchableOpacity
+            style={[styles.betTypeButton, betType === 'over' && styles.selectedBetType]}
+            onPress={() => setBetType('over')}
+          >
+            <Text style={styles.betTypeText}>Over</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.betTypeButton, betType === 'under' && styles.selectedBetType]}
+            onPress={() => setBetType('under')}
+          >
+            <Text style={styles.betTypeText}>Under</Text>
+          </TouchableOpacity>
         </View>
-      
+
+        <TouchableOpacity style={styles.addButton} onPress={rollDiceOnTap}>
+          <Text style={styles.addButtonText}>Place Bet</Text>
+        </TouchableOpacity>
+
         {result && <Text style={styles.resultText}>{result}</Text>}
         {error && <Text style={styles.errorText}>{error}</Text>}
+
+        <Text style={styles.noteText}>* Ensure your wallet has enough funds to place a bet.</Text>
       </View>
 
-      <Text style={styles.balanceText}>Current Balance: 0.00 USD</Text>
-
-      <View style={styles.buttonContainer}>
-        <TextInput
-          placeholder='Select first Number'
-          value={selectedFirstNumber}
-          onChangeText={setSelectedFirstNumber}
-          keyboardType='phone-pad'
-          placeholderTextColor='#ffd700'
-          style={styles.input}
-        />
-        <TextInput
-          placeholder='Select second Number'
-          value={selectedSecondNumber}
-          onChangeText={setSelectedSecondNumber}
-          keyboardType='phone-pad'
-          placeholderTextColor='#ffd700'
-          style={styles.input}
-        />
-      </View>
-
-      <TextInput
-        placeholder="Enter amount"
-        value={bidAmount}
-        onChangeText={setBidAmount}
-        keyboardType='numeric'
-        placeholderTextColor="#888"
-        style={styles.input}
-      />
-
-      <TouchableOpacity style={styles.addButton} onPress={rollDiceOnTap}>
-        <Text style={styles.addButtonText}>Add Bet</Text>
-      </TouchableOpacity>
-
-      <Text style={styles.noteText}>Minimum: 3 | Maximum: 1M | Win Amount: 100%</Text>
-
+      {/* Navigation Bar */}
       <View style={styles.navBar}>
         <Text style={styles.navText}>Home</Text>
         <Text style={styles.navText}>Lottery</Text>
         <Text style={styles.navText}>Wallet</Text>
-        <Text style={styles.navText}>Setting</Text>
+        <Text style={styles.navText}>Settings</Text>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
-export default DiceGame;
-
 const styles = StyleSheet.create({
-  // Same styles as before
   container: {
-    flex: 1,
     backgroundColor: '#021324',
-    alignItems: 'center',
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 40,
   },
   title: {
-    fontSize: 24,
-    color: 'white',
+    color: '#ffd700',
+    fontSize: 32,
+    textAlign: 'center',
     fontFamily: 'Poppins-Regular',
-    marginTop: 40,
+    marginBottom: 20,
+  },
+  diceContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  diceImage: {
+    width: 100,
+    height: 100,
+    marginHorizontal: 10,
+  },
+  lite: {
+    tintColor: '#FFD700',
   },
   balanceText: {
+    color: '#ffd700',
     fontSize: 18,
-    color: 'white',
+    textAlign: 'center',
+    marginVertical: 10,
     fontFamily: 'Poppins-Regular',
-    marginBottom: 20,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 20,
   },
   input: {
-    backgroundColor: '#4a4a4a',
-    color: 'white',
-    fontFamily: 'Poppins-Regular',
+    backgroundColor: '#fff',
+    borderColor: '#ffd700',
+    borderWidth: 2,
     padding: 10,
-    borderRadius: 8,
-    width: '48%',
+    color: '#021324',
+    borderRadius: 10,
+    marginVertical: 10,
+    fontFamily: 'Poppins-Regular',
+  },
+  betTypeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
     marginBottom: 20,
   },
+  betTypeButton: {
+    padding: 15,
+    borderRadius: 10,
+    borderColor: '#ffd700',
+    borderWidth: 2,
+  },
+  selectedBetType: {
+    backgroundColor: '#ffd700',
+  },
+  betTypeText: {
+    color: '#fff',
+    fontSize: 16,
+    textAlign: 'center',
+    fontFamily: 'Poppins-Regular',
+  },
   addButton: {
-    backgroundColor: '#f0b000',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    marginBottom: 10,
+    backgroundColor: '#ffd700',
+    padding: 15,
+    borderRadius: 10,
+    marginVertical: 10,
   },
   addButtonText: {
     color: '#021324',
+    textAlign: 'center',
+    fontSize: 18,
     fontFamily: 'Poppins-Regular',
+  },
+  resultText: {
+    color: '#fff',
+    fontSize: 20,
+    textAlign: 'center',
+    fontFamily: 'Poppins-Regular',
+    marginVertical: 10,
+  },
+  errorText: {
+    color: 'red',
     fontSize: 16,
+    textAlign: 'center',
+    fontFamily: 'Poppins-Regular',
+    marginVertical: 10,
   },
   noteText: {
-    fontSize: 14,
-    color: 'white',
-    fontFamily: 'Poppins-Regular',
+    color: '#fff',
+    fontSize: 12,
     textAlign: 'center',
-    marginBottom: 30,
+    fontFamily: 'Poppins-Regular',
+    marginVertical: 10,
   },
   navBar: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    backgroundColor: '#f0b000',
-    paddingVertical: 15,
-    borderRadius: 8,
-    position: 'absolute',
-    bottom: 0,
+    justifyContent: 'space-evenly',
+    paddingVertical: 10,
+    borderTopWidth: 2,
+    borderTopColor: '#ffd700',
   },
   navText: {
-    color: '#021324',
-    fontFamily: 'Poppins-Regular',
-    fontSize: 14,
-  },
-  container1: {
-    paddingHorizontal: 20,
-    paddingVertical: 40,
-    marginHorizontal: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 15,
-    elevation: 2
-  },
-  diceContainer: {
-    margin: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-  },
-  diceImage: {
-    marginHorizontal: 10,
-    width: 125,
-    height: 125
-  },
-  lite: {
-    opacity: 0.95,
-  },
-  rollDiceBtnText: {
-    paddingVertical: 10,
-    paddingHorizontal: 40,
-    borderWidth: 2,
-    borderRadius: 8,
-    borderColor: '#E5E0FF',
-    fontSize: 16,
-    color: '#fff',
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    backgroundColor: '#333'
-  },
-  resultText: {
-    fontSize: 20,
     color: '#ffd700',
-    fontFamily: 'Poppins-Regular',
-    marginTop: 20,
-  },
-  errorText: {
     fontSize: 16,
-    color: '#ff4c4c',
     fontFamily: 'Poppins-Regular',
-    marginTop: 10,
-  }
+  },
 });
+
+export default DiceGame;

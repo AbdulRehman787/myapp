@@ -1,5 +1,6 @@
 package com.myapp
-
+import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;  // <--- Import Package
+import com.upi.payment.UpiPaymentPackage;
 import android.app.Application
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
@@ -19,6 +20,8 @@ class MainApplication : Application(), ReactApplication {
             PackageList(this).packages.apply {
               // Packages that cannot be autolinked yet can be added manually here, for example:
               // add(MyReactNativePackage())
+              new ReactNativePushNotificationPackage()
+               new UpiPaymentPackage()
             }
 
         override fun getJSMainModuleName(): String = "index"

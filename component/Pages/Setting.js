@@ -1,10 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons'; // If you are using vector icons
 import { useNavigation } from '@react-navigation/native';
+import Footer from '../Games/Footer';
 const Setting = () => {
-
-  const navigation  = useNavigation()
 
   return (
     <View style={styles.container}>
@@ -12,7 +10,7 @@ const Setting = () => {
       
       <View style={styles.profileContainer}>
         <Image 
-          source={{uri: 'https://example.com/your-profile-image-url'}} 
+          source={{ uri: 'https://example.com/your-profile-image-url' }} 
           style={styles.profileImage}
         />
         <View style={styles.profileInfo}>
@@ -22,26 +20,26 @@ const Setting = () => {
       </View>
 
       <View style={styles.menuContainer}>
-        <MenuItem icon="person-outline" text="My Profile" />
-        <MenuItem icon="trophy-outline" text="Top Winner" />
-        <MenuItem icon="calendar-outline" text="Upcoming Lottery" />
-        <MenuItem icon="card-outline" text="Transactions" />
-        <MenuItem icon="document-text-outline" text="Privacy & Policy" />
-        <MenuItem icon="document-text-outline" text="Terms & Condition" />
-        <MenuItem icon="help-circle-outline" text="Help & Support" />
-        <MenuItem icon="log-out-outline" text="Sign Out" />
+        <MenuItem icon={require('../../assets/images/user.png')} text="My Profile" />
+        <MenuItem icon={require('../../assets/images/trophy.png')} text="Top Winner" />
+        <MenuItem icon={require('../../assets/images/upcoming.png')} text="Upcoming Lottery" />
+        <MenuItem icon={require('../../assets/images/transaction1.png')} text="Transactions" />
+        <MenuItem icon={require('../../assets/images/insurance.png')} text="Privacy & Policy" />
+        <MenuItem icon={require('../../assets/images/renewable.png')} text="Terms & Condition" />
+        <MenuItem icon={require('../../assets/images/support.png')} text="Help & Support" />
+        <MenuItem icon={require('../../assets/images/logout.png')} text="Sign Out" />
       </View>
-
+      <Footer />
     </View>
   );
 }
 
 const MenuItem = ({ icon, text }) => {
-  const navigation  = useNavigation()
+  const navigation = useNavigation();
 
   return (
-    <TouchableOpacity style={styles.menuItem} onPress={()=>navigation.navigate(text)}>
-      <Icon name={icon} size={24} color="#FFFFFF" />
+    <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate(text)}>
+      <Image source={icon} style={styles.icon} />
       <Text style={styles.menuText}>{text}</Text>
     </TouchableOpacity>
   );
@@ -50,9 +48,9 @@ const MenuItem = ({ icon, text }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#021324', // Background color as requested
+    backgroundColor: '#021324',
     paddingHorizontal: 20,
-    paddingVertical: 40,
+    paddingTop: 30
   },
   header: {
     fontSize: 24,
@@ -92,12 +90,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#FFFFFF', // White border for separation
+    borderBottomColor: '#FFFFFF',
   },
   menuText: {
     marginLeft: 15,
-    fontSize: 16,
+    fontSize: 18,
     color: '#FFFFFF',
+  },
+  icon: {
+    width: 30, // Set the desired width
+    height: 30, // Set the desired height
   },
   footer: {
     flexDirection: 'row',

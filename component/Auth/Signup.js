@@ -13,6 +13,8 @@ import {
 import axios from 'axios';
 import PhoneInput from 'react-native-phone-number-input';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 const Signup = () => {
   const navigation = useNavigation();
   const [name, setName] = useState('');
@@ -21,6 +23,9 @@ const Signup = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [formattedPhoneNumber, setFormattedPhoneNumber] = useState('');
+  const [referralCode, setReferralCode] = useState(''); // New state for referral code
+  const [country, setCountry] = useState(''); // Country
+  const [city, setCity] = useState(''); // City
   const [error, setError] = useState('');
 
   const data = {
@@ -28,10 +33,10 @@ const Signup = () => {
     email: email,
     phoneno: formattedPhoneNumber,
     password: password,
-    country:"",
-    city:"",
+    referralCode: referralCode, // Include referral code in the data
+    country: country,
+    city: city,
   };
-
 
   const AccountCreated = () => {
     if (!name || !email || !phoneno || !password || !confirmPassword) {
@@ -43,18 +48,13 @@ const Signup = () => {
       axios
         .post('https://mint-legible-coyote.ngrok-free.app/signup', data)
         .then(res => {
-      
-          Alert.alert('Your account his created')
-          
-       
-         
-          AsyncStorage.setItem("UserData",JSON.stringify(data))
-          .then(res=>{console.log('Data Saved')
-            navigation.navigate('Login')
-          }
-        
-        )
-          .catch(err=> console.log(err))
+          Alert.alert('Your account is created');
+          AsyncStorage.setItem("UserData", JSON.stringify(data))
+            .then(() => {
+              console.log('Data Saved');
+              navigation.navigate('Login');
+            })
+            .catch(err => console.log(err));
         })
         .catch(err => {
           if (err.response) {
@@ -76,12 +76,12 @@ const Signup = () => {
   };
 
   return (
-    <SafeAreaView style={style.cont}>
+    <View style={style.cont}>
       <View style={style.container1}>
         <ScrollView>
           <View style={style.textStyle}>
-            <Text style={style.heading1}>SignUp</Text>
-            <Text style={style.heading2}>Add Your Details to Signup</Text>
+            <Text style={style.heading1}>Sign Up</Text>
+            <Text style={style.heading2}>Add Your Details to Sign Up</Text>
           </View>
           <View>
             <Text style={style.inputLabel}>Enter Name</Text>
@@ -116,9 +116,8 @@ const Signup = () => {
               textInputStyle={style.phoneInputText}
               codeTextStyle={style.phoneInputCodeText}
               flagButtonStyle={style.phoneInputFlag}
-              
-              
             />
+           
             <Text style={style.inputLabel}>Enter Password</Text>
             <TextInput
               style={style.input}
@@ -128,7 +127,7 @@ const Signup = () => {
               secureTextEntry
               placeholderTextColor={'#000'}
             />
-            <Text style={style.inputLabel}>Enter Confirm Password</Text>
+            <Text style={style.inputLabel}>Confirm Password</Text>
             <TextInput
               style={style.input}
               placeholder="Confirm Password"
@@ -137,11 +136,19 @@ const Signup = () => {
               secureTextEntry
               placeholderTextColor={'#000'}
             />
+            <Text style={style.inputLabel}>Referral Code (optional)</Text>
+            <TextInput
+              style={style.input}
+              placeholder="Referral Code"
+              value={referralCode}
+              onChangeText={setReferralCode}
+              placeholderTextColor={'#000'}
+            />
           </View>
           <View>
             <Text style={style.error}>{error}</Text>
             <TouchableOpacity style={style.button3} onPress={AccountCreated}>
-              <Text style={style.textbtn}>Signup</Text>
+              <Text style={style.textbtn}>Sign Up</Text>
             </TouchableOpacity>
           </View>
           <View>
@@ -156,7 +163,7 @@ const Signup = () => {
           </View>
         </ScrollView>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -216,8 +223,7 @@ const style = StyleSheet.create({
     borderRadius: 25,
     fontFamily: 'Poppins-Regular',
     width: "100%",
-color:"#000"
-
+    color: "#000"
   },
   phoneInputTextContainer: {
     borderRadius: 25,
@@ -234,8 +240,6 @@ color:"#000"
     fontSize: 16,
     fontFamily: 'Poppins-Regular',
     color: '#000',
-   
-
   },
   phoneInputFlag: {
     marginLeft: 10,

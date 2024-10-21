@@ -60,7 +60,7 @@ const UpiPayment = ({ navigation, route }) => {
 
   const checkPaymentStatus = async () => {
     try {
-      const response = await axios.get(`https://http://localhost:3001/check-payment-status?transactionId=${transactionId}`);
+      const response = await axios.get(`http://localhost:3001/check-payment-status?transactionId=${transactionId}`);
       if (response.data && response.data.status === 'SUCCESS') {
         setBalance(response.data.newBalance); // Update balance on success
         Alert.alert('Success', 'Payment received successfully!');
@@ -72,6 +72,8 @@ const UpiPayment = ({ navigation, route }) => {
       Alert.alert('Error', 'Failed to check payment status. Please try again.');
     }
   };
+
+ 
 
   return (
     <View style={styles.container}>

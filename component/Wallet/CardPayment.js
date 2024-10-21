@@ -1,5 +1,5 @@
 import React,{useState,useEffect} from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Dimensions ,Alert} from 'react-native';
 const { width } = Dimensions.get('window');
 import { useStripe } from '@stripe/stripe-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -11,14 +11,15 @@ const CardPayment = ({ route, navigation }) => {
   
     const { initPaymentSheet, presentPaymentSheet } = useStripe();
     const [loading, setLoading] = useState(false);
-    const [paymentStatus, setPaymentStatus] = useState('');
+   
     const data1={
       user_id,
       user_email,
       user_name,
       amount,
-      gateway_system:paymentMethod,
-      payment_status:"Payment successfull"
+      gateway_system:"Stripe",
+      payment_status: "Payment successfull",
+      paymentMethod,
     }
    
     const fetchPaymentSheetParams = async () => {

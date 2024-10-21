@@ -76,8 +76,8 @@ android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
-
     namespace "com.myapp"
+
     defaultConfig {
         applicationId "com.myapp"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -117,7 +117,9 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
    implementation("com.google.firebase:firebase-analytics")
+   implementation("com.google.firebase:firebase-bom:31.5.0")
     implementation("com.facebook.react:react-android")
+    implementation project(':react-native-push-notification')
    implementation project(':react-native-image-picker')
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
@@ -125,8 +127,8 @@ dependencies {
         implementation jscFlavor
     }
     implementation 'com.google.android.material:material:<version>'
-    implementation "com.squareup.okhttp3:okhttp:4.2.1"
-implementation "com.squareup.okhttp3:logging-interceptor:4.2.1"
-implementation "com.squareup.okhttp3:okhttp-urlconnection:4.2.1"
+    
+ 
+ 
     
 }

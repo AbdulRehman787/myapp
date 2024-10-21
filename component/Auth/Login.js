@@ -30,7 +30,7 @@ const Login = () => {
 
     const data = { email, password };
 
-    axios.post('https://mint-legible-coyote.ngrok-free.app/login', data)
+    axios.post('https://bulldog-solid-bream.ngrok-free.app/login', data)
         .then(res => {
             const token = res.data.token; // Assuming the server returns a token
             AsyncStorage.setItem('authToken', token); 
@@ -96,13 +96,15 @@ const Login = () => {
         <View style={styles.head7}>
           <Text style={styles.head7_1}>
             Don't have an account?{' '}
+            </Text>
+
             <TouchableOpacity onPress={()=>navigation.navigate('Signup')}><Text 
               style={styles.head7_2}
              >
               Signup
             </Text></TouchableOpacity>
-            {' '}
-          </Text>
+          
+       
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -206,8 +208,10 @@ const styles = StyleSheet.create({
 
   },
   head7: {
-    marginHorizontal: 30,
-    marginTop: 20,
+  marginVertical:20,
+  flexDirection:"row",
+  justifyContent:"center",
+  alignItems:"center"
   },
   head7_1: {
     textAlign: 'center',
@@ -217,7 +221,7 @@ const styles = StyleSheet.create({
   head7_2: {
     fontFamily: 'Poppins-Regular',
     color: '#FFD700',
-    textAlign: "center"
+    
 
   },
   error: {

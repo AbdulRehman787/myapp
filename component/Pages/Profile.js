@@ -44,7 +44,7 @@ const Profile = () => {
     // Fetch data from the database
     const getData = () => {
       axios
-        .get('https://mint-legible-coyote.ngrok-free.app/signup')
+        .get('https://bulldog-solid-bream.ngrok-free.app/signup')
         .then((res) => {
           console.log('Fetched Data:', res.data); // Debugging line
           setData(res.data);
@@ -57,7 +57,7 @@ const Profile = () => {
 
 
   const filterData = data.filter((item) => item.email === email)
-console.log(filterData)
+
   const nav = () => {
     navigation.navigate('Dashboard')
   }

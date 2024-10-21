@@ -10,14 +10,11 @@ import ForgotPassword from '../Auth/ForgotPassword'
 import NewPassword from '../Auth/NewPassword'
 import Verify from '../KycVerify/Verify'
 import GetDocuments from '../KycVerify/GetDocuments'
-
-
 import Lottery from '../Lotteries/Lottery'
 import AllGames from '../Games/AllGames'
-import ScratchLottery from '../Lotteries/ScratchLottery'
+
 import HeadandTail from '../Games/HeadandTail'
 import DiceGame from '../Games/Diece'
-
 import RockPaper from '../Games/RockPaper'
 import Spinner from '../Games/Spinner'
 import NumberSlot from '../Games/NumberSlot'
@@ -51,6 +48,18 @@ import UpiPayment from '../Wallet/UpiPayment'
 import PhonePay from '../Wallet/PhonePay'
 import DepositConfirmation from '../Wallet/DepositConfirmation'
 import PaymentQRScreen from '../Wallet/PaymentQRScreen'
+import Casino from '../Games/Casino'
+import PokerGame from '../Games/PokerGame'
+import PuzzleGame from '../Games/Puzzle'
+import JetX from '../Games/Jetx'
+import MinesGame from '../Games/MinesGame'
+import DoubleGame from '../Games/DoubleGame'
+import TransferBalance from './../Wallet/TransferBalance';
+import Lotteries from '../Lotteries/Lotteries'
+import ScratchLottery from './../Lotteries/ScratchLottery';
+import Color from '../Games/Color'
+
+
 const Stack = createNativeStackNavigator()
 const AuthNavigation = () => {
   return (
@@ -106,6 +115,15 @@ const AuthNavigation = () => {
         <Stack.Screen name='Phone Pay' component={PhonePay} />
         <Stack.Screen name='DepositConfirmation' component={DepositConfirmation} />
         <Stack.Screen name='PaymentQRScreen' component={PaymentQRScreen} />
+        <Stack.Screen name='Casino' component={Casino} />
+        <Stack.Screen name='PokerGame' component={PokerGame} />
+        <Stack.Screen name='PuzzleGame' component={PuzzleGame} />
+        <Stack.Screen name='JetX' component={JetX} />
+        <Stack.Screen name='MinesGame' component={MinesGame} />
+        <Stack.Screen name='DoubleGame' component={DoubleGame} />
+        <Stack.Screen name='TransferBalance' component={TransferBalance} />
+        <Stack.Screen name='Lotteries' component={Lotteries} />
+        <Stack.Screen name='Color' component={Color} />
      
       </Stack.Navigator>
       
